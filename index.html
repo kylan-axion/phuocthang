@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dân cư Phường Phước Thắng</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#004D40">
+  <style>
+    :root {
+      --jade-dark: #003323;
+      --jade-deep: #004D40;
+      --jade-emerald: #00A86B;
+      --jade-light: #50C878;
+      --jade-glow: #A2F3D1;
+      --gold-shimmer: #FFE082;
+      --party-red: #A30D11;
+      --party-gold: #FFD700;
+      --party-bronze: #D4AF37;
+      --bg-nature: #F0F7F4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg-nature); color: #1C2826; display: flex; justify-content: center; }
+    .mobile-container { width: 100%; max-width: 450px; min-height: 100vh; background: #FFFFFF; position: relative; padding-bottom: 75px; box-shadow: 0 0 25px rgba(0, 77, 64, 0.15); }
+
+    /* BANNER ÁNH NGỌC BÍCH THIÊN NHIÊN */
+    .top-header {
+      background: linear-gradient(135deg, var(--jade-dark) 0%, var(--jade-deep) 50%, var(--jade-emerald) 100%);
+      color: white;
+      padding: 24px 16px 45px 16px;
+      border-radius: 0 0 26px 26px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 168, 107, 0.25);
+    }
+    .top-header::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, rgba(255,255,255,0) 30%, rgba(162, 243, 209, 0.25) 50%, rgba(255,255,255,0) 70%);
+      animation: shimmer 5s infinite linear;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-30%); }
+      100% { transform: translateX(30%); }
+    }
+
+    .user-pill { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; position: relative; z-index: 2; }
+    
+    /* VÒNG TRÒN ẢNH ĐẠI DIỆN HỖ TRỢ ĐÍNH KÈM ẢNH 3x4 */
+    .avatar-wrapper {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .avatar-circle {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #00A86B, #004D40);
+      border: 2px solid var(--jade-glow);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(162, 243, 209, 0.5);
+    }
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .avatar-badge-cam {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      background: #FFE082;
+      border: 1.5px solid #004D40;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    /* TIÊU ĐỀ LỚN HƠN, CĂN CHÍNH GIỮA, ÁNH KIM CHẠY TỪ TRÁI QUA PHẢI */
+    .title-box {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      margin-top: 4px;
+    }
+    .app-title-metallic {
+      font-size: 18.5px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      white-space: nowrap;
+      text-align: center;
+      background: linear-gradient(90deg, #FFE082 0%, #FFFFFF 20%, #FFD700 40%, #FFF3B0 60%, #FFB300 80%, #FFE082 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.75));
+      animation: goldStream 3.5s linear infinite;
+    }
+    @keyframes goldStream {
+      0% { background-position: 200% center; }
+      100% { background-position: 0% center; }
+    }
+
+    /* HỘP BỘ LỌC 16 KHU PHỐ */
+    .stats-card {
+      background: #FFFFFF;
+      margin: -25px 16px 16px 16px;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 6px 18px rgba(0, 77, 64, 0.1);
+      border: 1.5px solid var(--jade-glow);
+      position: relative;
+      z-index: 3;
+    }
+    .kp-select-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed #CCE9E0; padding-bottom: 8px; }
+    .kp-select-box select {
+      font-weight: 800; font-size: 15px; color: var(--jade-deep);
+      border: 1.5px solid var(--jade-emerald); background: #F2FBF7;
+      padding: 5px 12px; border-radius: 8px; outline: none; cursor: pointer;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-item {
+      background: linear-gradient(180deg, #F9FDFB, #EAF7F2);
+      padding: 9px 5px; border-radius: 10px; text-align: center;
+      border: 1px solid #D7F0E6;
+    }
+    .stat-val { font-size: 13px; font-weight: 800; color: var(--jade-emerald); margin-bottom: 2px; }
+    .stat-lbl { font-size: 10px; color: #4A6B5D; font-weight: 700; text-transform: uppercase; }
+
+    /* LƯỚI 4 TIỆN ÍCH CHÍNH */
+    .section-title { font-size: 15px; font-weight: 800; padding: 0 16px; margin: 15px 0 10px 0; color: var(--jade-dark); display: flex; align-items: center; gap: 6px; }
+    .section-title::before { content: ''; width: 4px; height: 16px; background: var(--jade-emerald); border-radius: 2px; }
+    .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; }
+    .action-btn {
+      background: #FFFFFF;
+      border: 1px solid #D6EFE5;
+      border-radius: 16px;
+      padding: 16px 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; gap: 8px; cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0, 168, 107, 0.05);
+      transition: all 0.2s ease;
+    }
+    .action-btn:active { background: #EAF7F2; transform: scale(0.98); }
+    .btn-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative; }
+    .btn-text { font-size: 13px; font-weight: 700; color: #2C3E35; line-height: 1.3; }
+    .badge-dot { position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; background: #DC3545; border-radius: 50%; border: 2px solid white; }
+
+    /* NÚT PHẢN ÁNH AN NINH TRẬT TỰ ĐÔ THỊ */
+    .party-btn-box { padding: 12px 16px; }
+    .party-btn {
+      background: linear-gradient(135deg, #7A0C0E 0%, var(--party-red) 50%, #540608 100%);
+      border: 1.8px solid var(--party-bronze);
+      border-radius: 16px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(163, 13, 17, 0.35), 0 0 12px rgba(212, 175, 55, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .party-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, rgba(255,255,255,0) 30%, rgba(255, 215, 0, 0.35) 50%, rgba(255,255,255,0) 70%);
+      animation: shimmer 4s infinite linear;
+      pointer-events: none;
+    }
+    .party-btn:active { transform: scale(0.98); }
+    .party-star-icon { font-size: 26px; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.8)); }
+    .party-btn-text {
+      font-size: 13.5px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #FFFFFF;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6), 0 0 8px rgba(255, 215, 0, 0.6);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* THANH BOTTOM BAR */
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; height: 60px; background: white; border-top: 1px solid #D6EFE5; display: flex; justify-content: space-around; align-items: center; z-index: 99; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #587366; cursor: pointer; font-weight: 700; }
+    .nav-item.active { color: var(--jade-emerald); }
+
+    /* MÀN HÌNH CON */
+    .sub-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F0F7F4; z-index: 1000; overflow-y: auto; justify-content: center; }
+    .sub-container { width: 100%; max-width: 450px; background: white; min-height: 100vh; padding-bottom: 40px; }
+    .sub-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 16px; border-bottom: 1.5px solid #E2F2EC; background: white; position: sticky; top: 0; z-index: 10; }
+    .btn-back { font-size: 22px; cursor: pointer; border: none; background: none; font-weight: bold; color: var(--jade-dark); }
+
+    /* FORM & BỐ CỤC */
+    .form-box { padding: 14px 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #3E544A; }
+    .form-group label span.req { color: #DC3545; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px; border: 1.5px solid #CCE2D8; border-radius: 8px; font-size: 14px; background: #FFF; outline: none; transition: 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--jade-emerald); box-shadow: 0 0 6px rgba(0, 168, 107, 0.2); }
+    .form-group input[readonly], .form-group select[disabled] { background-color: #F4F9F6; color: #333; }
+
+    /* NÚT THÊM THÀNH VIÊN DẤU TRÒN ĐỎ */
+    .btn-add-member-box { display: flex; justify-content: flex-end; padding: 10px 16px 4px 16px; }
+    .btn-add-member-stylish {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #FFF9ED 0%, #FFF2D6 100%);
+      border: 1.5px solid #F5C067; padding: 6px 14px; border-radius: 20px;
+      cursor: pointer; box-shadow: 0 3px 8px rgba(245, 192, 103, 0.25);
+    }
+    .btn-add-member-stylish:active { transform: scale(0.96); }
+    .add-text { color: #C0392B; font-size: 13px; font-weight: 800; }
+    .circle-badge {
+      width: 18px; height: 18px; background: linear-gradient(135deg, #E74C3C, #C0392B);
+      border-radius: 50%; box-shadow: 0 2px 5px rgba(192, 57, 43, 0.4); border: 2px solid #FFFFFF;
+    }
+
+    /* THẺ THÀNH VIÊN */
+    .member-card { background: white; border: 1.5px solid #FFD591; border-radius: 12px; padding: 14px; margin: 10px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); cursor: pointer; }
+    .member-name { font-weight: 800; font-size: 15px; color: #1C2826; margin-bottom: 6px; }
+    .member-role { color: var(--jade-emerald); font-weight: 700; }
+    .member-info-row { display: flex; justify-content: space-between; font-size: 12.5px; color: #4B6356; margin-top: 4px; }
+    .badge-approved { display: inline-block; background: var(--jade-emerald); color: white; font-size: 11px; padding: 3px 8px; border-radius: 5px; margin-top: 8px; font-weight: 700; }
+
+    /* DANH SÁCH THÔNG BÁO */
+    .noti-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #EEF3F0; cursor: pointer; transition: 0.1s; }
+    .noti-item:active { background: #F2FBF7; }
+    .noti-icon-wrap { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .noti-content { flex: 1; }
+    .noti-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .noti-title { font-size: 13.5px; font-weight: 800; color: #1C2826; }
+    .noti-date { font-size: 11px; color: #8C9E95; }
+    .noti-desc { font-size: 12.5px; color: #587366; line-height: 1.3; }
+
+    /* DÒNG PHẢN HỒI GÓP Ý TRONG MỤC KHU PHỐ */
+    .feedback-row { background: #FFFFFF; border: 1.5px solid #D6EFE5; border-radius: 12px; padding: 14px; margin-bottom: 12px; cursor: pointer; }
+    .feedback-status { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; display: inline-block; }
+    .status-done { background: #E2F9EF; color: #00A86B; }
+    .status-wait { background: #FFF4E5; color: #E67E22; }
+
+    /* VÙNG UPLOAD TỆP ĐA ĐỊNH DẠNG */
+    .upload-dashed-box {
+      border: 1.8px dashed var(--jade-emerald); background: #F8FDFB; border-radius: 12px;
+      padding: 16px 10px; text-align: center; margin-top: 6px; cursor: pointer;
+    }
+    .upload-media-icons { display: flex; justify-content: center; gap: 18px; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--jade-deep); }
+
+    /* NÚT BẤM */
+    .btn-submit { width: 100%; background: linear-gradient(135deg, var(--jade-deep), var(--jade-emerald)); color: white; padding: 13px; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 12px rgba(0, 168, 107, 0.25); }
+    .btn-red-action { width: 100%; background: #A30D11; color: white; padding: 13px; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 12px; box-shadow: 0 4px 12px rgba(163, 13, 17, 0.25); }
+    .btn-change-pass-stylish { width: 100%; background: linear-gradient(135deg, #FFFFFF, #F0FDF8); color: var(--jade-deep); border: 1.8px solid var(--jade-emerald); padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 12px; }
+    .btn-delete { width: 100%; background: #DC3545; color: white; padding: 13px; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- Input ẩn để tải ảnh 3x4 từ điện thoại -->
+<input type="file" id="userAvatarFile" accept="image/*" style="display: none;" onchange="handleUserAvatar(event)">
+
+<div class="mobile-container">
+  <!-- TOP BANNER ÁNH NGỌC BÍCH -->
+  <div class="top-header">
+    <div class="user-pill">
+      <!-- VÒNG TRÒN ĐẠI DIỆN HỖ TRỢ CHẠM VÀO ĐỂ TẢI ẢNH 3x4 -->
+      <div class="avatar-wrapper" onclick="document.getElementById('userAvatarFile').click()" title="Chạm để đổi ảnh 3x4">
+        <div class="avatar-circle">
+          <span id="avatarIcon">👤</span>
+          <img id="avatarImg" class="avatar-img" alt="Ảnh 3x4">
+        </div>
+        <div class="avatar-badge-cam">📷</div>
+      </div>
+      <div>
+        <div style="font-size: 12px; opacity: 0.9;" id="lblHeaderPhone">079080309999</div>
+        <div style="font-weight: 800; font-size: 15px;" id="lblHeaderName">Xin chào, Nguyễn Văn A</div>
+      </div>
+    </div>
+    
+    <!-- TIÊU ĐỀ ĐÃ ĐƯỢC CĂN GIỮA HOÀN TOÀN VÀ TĂNG KÍCH THƯỚC NỔI BẬT -->
+    <div class="title-box">
+      <div class="app-title-metallic">DÂN CƯ PHƯỜNG PHƯỚC THẮNG</div>
+    </div>
+  </div>
+
+  <!-- BỘ LỌC 16 KHU PHỐ -->
+  <div class="stats-card">
+    <div class="kp-select-box">
+      <span style="font-size: 12px; font-weight:800; color:var(--jade-dark);">ĐỊA BÀN:</span>
+      <select id="selKhuPho" onchange="onKhuPhoChange()"></select>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-val" id="dispDanCu">4.399</div>
+        <div class="stat-lbl">Dân số (người)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="dispHoDan">1.138</div>
+        <div class="stat-lbl">Số hộ</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="dispDienTich">491,35</div>
+        <div class="stat-lbl">Diện tích (ha)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LƯỚI 4 TIỆN ÍCH CHÍNH -->
+  <div class="section-title">Tiện ích cư dân</div>
+  <div class="action-grid">
+    <div class="action-btn" onclick="openPage('viewChiTietHoDan')">
+      <div class="btn-icon" style="background:#E2F7ED; color:var(--jade-emerald);">🏢</div>
+      <div class="btn-text">Thông tin<br>hộ dân</div>
+    </div>
+
+    <div class="action-btn" onclick="openPage('viewThongTinKhuPho')">
+      <div class="btn-icon" style="background:#FFF6E5; color:#E67E22;">📢</div>
+      <div class="btn-text">Thông tin<br>từ khu phố</div>
+    </div>
+
+    <div class="action-btn" onclick="openPage('viewThongBao')">
+      <div class="btn-icon" style="background:#E6FAF0; color:var(--jade-emerald);">
+        🔔
+        <div class="badge-dot"></div>
+      </div>
+      <div class="btn-text">Thông báo<br>cư dân</div>
+    </div>
+
+    <div class="action-btn" onclick="openPage('viewChiTietCuocHop')">
+      <div class="btn-icon" style="background:#FDECEE; color:#E74C3C;">📅</div>
+      <div class="btn-text">Thông tin<br>cuộc họp</div>
+    </div>
+  </div>
+
+  <!-- NÚT PHẢN ÁNH AN NINH TRẬT TỰ ĐÔ THỊ (ÁNH ĐỒNG LẤP LÁNH) -->
+  <div class="party-btn-box">
+    <div class="party-btn" onclick="openPage('viewPhanAnhDoThi')">
+      <div class="party-star-icon">⭐</div>
+      <div class="party-btn-text">PHẢN ÁNH AN NINH TRẬT TỰ ĐÔ THỊ</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR 3 TAB -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="goHome()"><span style="font-size:20px;">🏠</span>Trang chủ</div>
+    <div class="nav-item" onclick="openPage('viewDangKy')"><span style="font-size:20px;">📝</span>Đăng ký</div>
+    <div class="nav-item" onclick="openPage('viewTaiKhoan')"><span style="font-size:20px;">👤</span>Tài khoản</div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 1: CHI TIẾT HỘ DÂN ================= -->
+<div class="sub-page" id="viewChiTietHoDan">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewChiTietHoDan')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Chi tiết hộ dân</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="btn-add-member-box">
+      <div class="btn-add-member-stylish" onclick="openPage('viewThemMoiThanhVien')">
+        <span class="add-text">Thêm mới thành viên</span>
+        <div class="circle-badge"></div>
+      </div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group"><label>Chủ hộ</label><input type="text" id="hdChuHo" value="Nguyễn Văn A" readonly></div>
+      <div class="form-row">
+        <div class="form-group"><label>Ngày sinh</label><input type="text" id="hdNgaySinh" value="20/05/1980" readonly></div>
+        <div class="form-group"><label>Giới tính</label><input type="text" id="hdGioiTinh" value="Nam" readonly></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Số CCCD</label><input type="text" id="hdCCCD" value="079080309999" readonly></div>
+        <div class="form-group"><label>Số điện thoại</label><input type="text" id="hdSDT" value="0123456786" readonly></div>
+      </div>
+      <div class="form-group"><label>Khu phố</label><input type="text" id="hdKhuPho" value="Khu Phố 1" readonly></div>
+      <div class="form-row">
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="hdNgheNghiep" value="Kỹ sư xây dựng" readonly></div>
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="hdNoiLamViec" value="Công ty CP Xây Dựng Số 1" readonly></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Trình độ</label><input type="text" id="hdTrinhDo" value="Đại học" readonly></div>
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="hdChuyenMon" value="Kỹ thuật công trình" readonly></div>
+      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="hdThuongTru" value="123 đường Lê Lai" readonly></div>
+      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="hdTamTru" value="Không" readonly></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="hdGhiChu" value="Gia đình chấp hành tốt chủ trương chính sách" readonly></div>
+    </div>
+
+    <div style="font-size:14px; font-weight:800; padding: 0 16px; color:var(--jade-dark);" id="lblCountThanhVien">Danh sách thành viên (2)</div>
+    <div id="listThanhVienBox">
+      <div class="member-card" onclick="openCapNhat('Nguyễn Văn A', 'Chủ hộ', '079080309999', '20/05/1980', 'Nam', '0123456786', 'Kỹ sư xây dựng', 'Công ty CP Xây Dựng Số 1', 'Đại học', 'Kỹ thuật công trình', '123 đường Lê Lai', '', 'Gia đình gương mẫu', 'Kinh', 'Không')">
+        <div class="member-name">Nguyễn Văn A - <span class="member-role">Chủ hộ</span></div>
+        <div class="member-info-row"><span>CCCD: 079080309999</span><span>Ngày sinh: 20/05/1980</span></div>
+        <div class="member-info-row"><span>Giới tính: Nam</span><span>Tình trạng: Thường trú</span></div>
+        <span class="badge-approved">Đã duyệt</span>
+      </div>
+      <div class="member-card" onclick="openCapNhat('Nguyễn Văn B', 'Vợ', '079082333444', '15/08/1984', 'Nữ', '', 'Kinh doanh', 'Cửa hàng Phước Thắng', '12/12', 'Kế toán', '123 đường Lê Lai', '', 'Không', 'Kinh', 'Không')">
+        <div class="member-name">Nguyễn Văn B - <span class="member-role">Vợ</span></div>
+        <div class="member-info-row"><span>CCCD: 079082333444</span><span>Ngày sinh: 15/08/1984</span></div>
+        <div class="member-info-row"><span>Giới tính: Nữ</span><span>Tình trạng: Thường trú</span></div>
+        <span class="badge-approved">Đã duyệt</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 2: THÔNG BÁO CƯ DÂN ================= -->
+<div class="sub-page" id="viewThongBao">
+  <div class="sub-container">
+    <div class="sub-header" style="background:#1877F2; color:white;">
+      <button class="btn-back" style="color:white;" onclick="closePage('viewThongBao')">←</button>
+      <h3 style="font-size:16px;">Thông báo</h3>
+      <div style="font-size:18px;">✓✓</div>
+    </div>
+
+    <div style="background:#E7F0FD; padding:8px 16px; font-size:13px; font-weight:800; color:#1877F2;">
+      Công dân (4)
+    </div>
+
+    <div class="noti-item" onclick="openPage('viewChiTietCuocHop')">
+      <div class="noti-icon-wrap" style="background:#FDECEE; color:#DC3545;">📹</div>
+      <div class="noti-content">
+        <div class="noti-header">
+          <span class="noti-title">• Thông báo cuộc họp</span>
+          <span class="noti-date">03/09/2026</span>
+        </div>
+        <div class="noti-desc">Họp đầu tuần triển khai nhiệm vụ khu phố (Bấm để xem)</div>
+      </div>
+    </div>
+
+    <div class="noti-item" onclick="openPage('viewThongTinKhuPho')">
+      <div class="noti-icon-wrap" style="background:#FFF6E5; color:#E67E22;">📡</div>
+      <div class="noti-content">
+        <div class="noti-header">
+          <span class="noti-title">• Thông báo - tin tức khu phố</span>
+          <span class="noti-date">03/09/2026</span>
+        </div>
+        <div class="noti-desc">CẬP NHẬT TÍNH NĂNG TRỢ CẤP XÃ HỘI CHO CƯ DÂN</div>
+      </div>
+    </div>
+
+    <div class="noti-item" onclick="openPage('viewThongTinKhuPho')">
+      <div class="noti-icon-wrap" style="background:#EAF7F2; color:#00A86B;">💬</div>
+      <div class="noti-content">
+        <div class="noti-header">
+          <span class="noti-title">• Thông báo góp ý</span>
+          <span class="noti-date">03/09/2026</span>
+        </div>
+        <div class="noti-desc">Ý kiến phản ánh của bạn về đèn chiếu sáng đã được xử lý!</div>
+      </div>
+    </div>
+
+    <div class="noti-item" onclick="openPage('viewChiTietHoDan')">
+      <div class="noti-icon-wrap" style="background:#FDE8E8; color:#E74C3C;">📝</div>
+      <div class="noti-content">
+        <div class="noti-header">
+          <span class="noti-title">• Thông báo xác nhận thành viên</span>
+          <span class="noti-date">27/08/2026</span>
+        </div>
+        <div class="noti-desc">Yêu cầu cập nhật thông tin thành viên đã được phê duyệt</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 3: CHI TIẾT CUỘC HỌP ================= -->
+<div class="sub-page" id="viewChiTietCuocHop">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewChiTietCuocHop')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Chi tiết cuộc họp</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Tên cuộc họp</label>
+        <input type="text" id="meetTitle" value="Họp triển khai công tác số hóa dân cư 2026" readonly>
+      </div>
+      <div class="form-group">
+        <label>Nội dung cuộc họp</label>
+        <textarea rows="3" readonly style="background:#F4F9F6;">Hướng dẫn cư dân sử dụng nền tảng số, lấy ý kiến đóng góp nâng cấp đường giao thông tổ dân phố.</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ngày họp</label>
+          <input type="text" value="04/09/2026 📅" readonly>
+        </div>
+        <div class="form-group">
+          <label>Thời gian</label>
+          <input type="text" value="15:00 - 16:30" readonly>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Địa điểm</label>
+        <input type="text" id="meetLocation" value="Văn phòng Ban điều hành Khu Phố 1 - Phường Phước Thắng" readonly>
+      </div>
+      <div class="form-group">
+        <label>Chủ trì</label>
+        <input type="text" id="meetHost" value="👤 Trưởng Khu Phố 1" readonly>
+      </div>
+      <div class="form-group">
+        <label>Tóm tắt kết luận</label>
+        <textarea rows="2" readonly style="background:#F4F9F6;" placeholder="Đang cập nhật sau cuộc họp..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>Đính kèm văn bản, hình ảnh:</label>
+        <div style="padding:10px; background:#F4F9F6; border:1px solid #D6EFE5; border-radius:8px; display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:13px; color:var(--jade-deep); font-weight:700;">📄 Giay_Moi_Hop_KP1.pdf</span>
+          <button onclick="alert('Đang tải tệp giấy mời Giay_Moi_Hop_KP1.pdf về máy...')" style="background:var(--jade-emerald); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">Mở tệp</button>
+        </div>
+      </div>
+
+      <button class="btn-submit" onclick="alert('Đã xác nhận sẽ tham dự cuộc họp!')">Xác nhận tham dự</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 4: THÔNG TIN TỪ KHU PHỐ ================= -->
+<div class="sub-page" id="viewThongTinKhuPho">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewThongTinKhuPho')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Thông tin từ khu phố</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div style="padding:14px 16px;">
+      <div style="background:linear-gradient(135deg, #00A86B, #004D40); color:white; border-radius:14px; padding:16px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h4 style="font-size:15px; margin-bottom:4px;">Bạn có ý kiến phản ánh?</h4>
+          <p style="font-size:12px; opacity:0.9;">Gửi kèm ảnh/video/tài liệu đến cán bộ</p>
+        </div>
+        <button onclick="openPage('viewGuiYKien')" style="background:white; color:#004D40; border:none; padding:8px 14px; border-radius:8px; font-weight:800; font-size:13px; cursor:pointer;">
+          Gửi góp ý ✍️
+        </button>
+      </div>
+    </div>
+
+    <div style="padding:0 16px;">
+      <h4 style="font-size:14px; color:var(--jade-dark); margin-bottom:10px;">Theo dõi ý kiến đã gửi & Trả lời từ khu phố</h4>
+      
+      <div class="feedback-row" onclick="openTraLoiGopY('Sửa chữa đèn đường ngõ 123 Lê Lai', 'Đã xử lý', 'Đơn vị chiếu sáng đô thị đã hoàn tất thay bóng đèn led mới vào sáng 03/09.')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <b style="font-size:13.5px; color:#1C2826;">💡 Sửa chữa đèn đường ngõ 123 Lê Lai</b>
+          <span class="feedback-status status-done">Đã xử lý</span>
+        </div>
+        <div style="font-size:12.5px; color:#587366; margin-bottom:6px;">Gửi ngày: 01/09/2026 | Kèm tệp: <i>Hinh_anh.jpg</i></div>
+        <div style="background:#F7FBF9; padding:8px; border-radius:8px; font-size:12px; color:#004D40; border-left:3px solid #00A86B;">
+          <b>Khu phố trả lời:</b> Đơn vị chiếu sáng đô thị đã hoàn tất thay bóng đèn led mới vào sáng 03/09.
+        </div>
+      </div>
+
+      <div class="feedback-row" onclick="openTraLoiGopY('Lịch thu gom rác thải sinh hoạt', 'Đang xử lý', 'Ban điều hành đang làm việc với đội vệ sinh môi trường để chốt giờ gom rác cố định.')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <b style="font-size:13.5px; color:#1C2826;">🗑️ Lịch thu gom rác thải sinh hoạt</b>
+          <span class="feedback-status status-wait">Đang xử lý</span>
+        </div>
+        <div style="font-size:12.5px; color:#587366; margin-bottom:6px;">Gửi ngày: 03/09/2026</div>
+        <div style="background:#FFF9F2; padding:8px; border-radius:8px; font-size:12px; color:#E67E22; border-left:3px solid #E67E22;">
+          <b>Khu phố trả lời:</b> Ban điều hành đang làm việc với đội vệ sinh môi trường để chốt giờ gom rác cố định.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 5: PHẢN ÁNH AN NINH TRẬT TỰ ĐÔ THỊ ================= -->
+<div class="sub-page" id="viewPhanAnhDoThi">
+  <div class="sub-container">
+    <div class="sub-header" style="background:#A30D11; color:white;">
+      <button class="btn-back" style="color:white;" onclick="closePage('viewPhanAnhDoThi')">←</button>
+      <div style="text-align:center;">
+        <h3 style="font-size:15px; letter-spacing:0.5px;">⭐ HỆ THỐNG PHẢN ÁNH CƠ SỞ</h3>
+        <p style="font-size:11px; opacity:0.9;">Đảng bộ phường Phước Thắng lắng nghe ý kiến Nhân dân</p>
+      </div>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Họ và tên <span class="req">*</span></label>
+        <input type="text" id="paHoTen" value="Nguyễn Văn A">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Số CCCD <span class="req">*</span></label>
+          <input type="number" id="paCCCD" value="079080309999">
+        </div>
+        <div class="form-group">
+          <label>Số điện thoại <span class="req">*</span></label>
+          <input type="tel" id="paSDT" value="0123456786">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Địa chỉ xảy ra sự việc <span class="req">*</span></label>
+        <input type="text" id="paDiaChi" placeholder="Số nhà, tuyến đường, khu phố...">
+      </div>
+      <div class="form-group">
+        <label>Nội dung phản ánh, kiến nghị <span class="req">*</span></label>
+        <textarea id="paNoiDung" rows="4" placeholder="Mô tả cụ thể sự việc để cán bộ xác minh nhanh chóng..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Đính kèm hiện trường (Ảnh, Video ngắn hoặc PDF - Tối đa 15MB)</label>
+        <input type="file" id="paFile" accept="image/png, image/jpeg, application/pdf, video/mp4" style="display:none;" onchange="updatePaFileName()">
+        <div class="upload-dashed-box" onclick="document.getElementById('paFile').click()">
+          <div style="font-size:13px; color:#587366;" id="paUploadNotice">Chạm để tải file hiện trường (PDF, Ảnh, Video)</div>
+          <div class="upload-media-icons">
+            <span>🖼️ Photo</span>
+            <span>📹 Video</span>
+            <span>📁 PDF File</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-red-action" onclick="submitPhanAnhDoThi()">GỬI TIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 6: BIỂU MẪU GỬI GÓP Ý THƯỜNG ================= -->
+<div class="sub-page" id="viewGuiYKien">
+  <div class="sub-container">
+    <div class="sub-header" style="background:#1877F2; color:white;">
+      <button class="btn-back" style="color:white;" onclick="closePage('viewGuiYKien')">←</button>
+      <h3 style="font-size:16px;">Gửi ý kiến góp ý</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Tiêu đề <span class="req">*</span></label>
+        <input type="text" id="fbTieuDe" placeholder="Nhập tiêu đề ý kiến góp ý">
+      </div>
+      <div class="form-group">
+        <label>Nội dung ý kiến góp ý <span class="req">*</span></label>
+        <textarea id="fbNoiDung" rows="4" placeholder="Nhập nội dung ý kiến góp ý chi tiết..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Chọn địa điểm ý kiến góp ý</label>
+        <input type="text" id="fbDiaDiem" value="Phường Phước Thắng, Thành phố Vũng Tàu">
+      </div>
+      <div class="form-group">
+        <label>Đính kèm văn bản, hình ảnh, video:</label>
+        <input type="file" id="fbFile" accept="image/*, application/pdf, video/*" style="display:none;" onchange="updateFbFileName()">
+        <div class="upload-dashed-box" onclick="document.getElementById('fbFile').click()">
+          <div style="font-size:13px; color:#587366;" id="fbUploadNotice">Chạm để chọn tệp từ máy (PDF, Ảnh, Video)</div>
+        </div>
+      </div>
+
+      <button class="btn-red-action" onclick="submitGopY()">Gửi ý kiến góp ý</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 7: KHU PHỐ PHẢN HỒI Ý KIẾN CỦA DÂN ================= -->
+<div class="sub-page" id="viewTraLoiGopY">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewTraLoiGopY')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Cán bộ Khu phố Trả lời</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Tiêu đề ý kiến</label>
+        <input type="text" id="ansTitle" readonly>
+      </div>
+      <div class="form-group">
+        <label>Cập nhật trạng thái xử lý</label>
+        <select id="ansStatus">
+          <option value="Đã xử lý">Đã xử lý</option>
+          <option value="Đang xử lý">Đang xử lý</option>
+          <option value="Từ chối">Từ chối</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nội dung trả lời từ Khu phố</label>
+        <textarea id="ansContent" rows="4" placeholder="Nhập văn bản trả lời cho cư dân..."></textarea>
+      </div>
+
+      <button class="btn-submit" onclick="submitCapNhatTraLoi()">Lưu & Gửi phản hồi tới Cư dân</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 8: YÊU CẦU CẬP NHẬT CƯ DÂN ================= -->
+<div class="sub-page" id="viewCapNhatCuDan">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewCapNhatCuDan')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Yêu cầu cập nhật cư dân</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group"><label>Họ tên thành viên <span class="req">*</span></label><input type="text" id="upName"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Ngày sinh <span class="req">*</span></label><input type="text" id="upDob"></div>
+        <div class="form-group"><label>Giới tính <span class="req">*</span></label><select id="upGender"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Số CCCD <span class="req">*</span></label><input type="text" id="upCCCD"></div>
+        <div class="form-group"><label>Số điện thoại <span class="req">*</span></label><input type="text" id="upSDT"></div>
+      </div>
+      <div class="form-group"><label>Khu phố</label><input type="text" id="upKP" value="Khu Phố 1"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="upNgheNghiep"></div>
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="upNoiLamViec"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Trình độ</label><input type="text" id="upTrinhDo"></div>
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="upChuyenMon"></div>
+      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="upDiaChiThuongTru"></div>
+      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="upDiaChiTamTru"></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="upGhiChu" placeholder="Ghi chú thêm..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Dân tộc</label><input type="text" id="upDanToc" value="Kinh"></div>
+        <div class="form-group"><label>Tôn giáo</label><input type="text" id="upTonGiao" value="Không"></div>
+      </div>
+
+      <button class="btn-delete" onclick="submitXoaThanhVien()">Xoá thành viên</button>
+      <button class="btn-submit" onclick="submitCapNhatThanhVien()">Gửi yêu cầu cập nhật</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 9: THÊM MỚI THÀNH VIÊN ================= -->
+<div class="sub-page" id="viewThemMoiThanhVien">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewThemMoiThanhVien')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Thêm thành viên mới</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group"><label>Họ tên thành viên <span class="req">*</span></label><input type="text" id="addName" placeholder="Nhập họ và tên"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Ngày sinh <span class="req">*</span></label><input type="date" id="addDob"></div>
+        <div class="form-group"><label>Giới tính <span class="req">*</span></label><select id="addGender"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Số CCCD <span class="req">*</span></label><input type="number" id="addCCCD" placeholder="12 chữ số"></div>
+        <div class="form-group"><label>Số điện thoại <span class="req">*</span></label><input type="tel" id="addSDT" placeholder="Nhập SĐT"></div>
+      </div>
+      <div class="form-group">
+        <label>Quan hệ với chủ hộ <span class="req">*</span></label>
+        <select id="addQuanHe">
+          <option value="Con đẻ">Con đẻ</option><option value="Vợ">Vợ</option><option value="Chồng">Chồng</option><option value="Bố/Mẹ">Bố/Mẹ</option><option value="Khác">Khác</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Khu phố <span class="req">*</span></label><select id="addKP"></select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="addNgheNghiep" placeholder="Nghề nghiệp"></div>
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="addNoiLamViec" placeholder="Đơn vị / Cơ quan"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Trình độ</label><input type="text" id="addTrinhDo" placeholder="Đại học, 12/12..."></div>
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="addChuyenMon" placeholder="Ngành nghề..."></div>
+      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="addDiaChiThuongTru" placeholder="Số nhà, đường..."></div>
+      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="addDiaChiTamTru" placeholder="Địa chỉ tạm trú (nếu có)"></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="addGhiChu" placeholder="Nhập ghi chú..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Dân tộc</label><input type="text" id="addDanToc" value="Kinh"></div>
+        <div class="form-group"><label>Tôn giáo</label><input type="text" id="addTonGiao" value="Không"></div>
+      </div>
+
+      <button class="btn-submit" onclick="submitThemThanhVien()">Gửi yêu cầu thêm mới</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 10: ĐĂNG KÝ ================= -->
+<div class="sub-page" id="viewDangKy">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewDangKy')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Đăng ký thông tin cư dân</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group"><label>Họ và tên <span class="req">*</span></label><input type="text" id="regHoTen" placeholder="Họ và tên đầy đủ"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Ngày sinh <span class="req">*</span></label><input type="date" id="regNgaySinh"></div>
+        <div class="form-group"><label>Giới tính <span class="req">*</span></label><select id="regGioiTinh"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Số CCCD (Tài khoản) <span class="req">*</span></label><input type="number" id="regCCCD" placeholder="079xxxxxxxx"></div>
+        <div class="form-group"><label>Số điện thoại <span class="req">*</span></label><input type="tel" id="regSDT" placeholder="09xxxxxxxx"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Khu phố <span class="req">*</span></label>
+          <select id="regKhuPhoSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu đăng ký <span class="req">*</span></label>
+          <input type="password" id="regPass" placeholder="Tối thiểu 6 ký tự">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="regNgheNghiep" placeholder="Nghề nghiệp"></div>
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="regNoiLamViec" placeholder="Cơ quan, đơn vị..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Trình độ</label><input type="text" id="regTrinhDo" placeholder="Đại học, Cao đẳng..."></div>
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="regChuyenMon" placeholder="Kỹ sư, Kế toán..."></div>
+      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="regThuongTru" placeholder="Số nhà, tên đường..."></div>
+      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="regTamTru" placeholder="Địa chỉ tạm trú (nếu có)"></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="regGhiChu" placeholder="Nhập ghi chú..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Dân tộc</label><input type="text" id="regDanToc" value="Kinh"></div>
+        <div class="form-group"><label>Tôn giáo</label><input type="text" id="regTonGiao" value="Không"></div>
+      </div>
+
+      <button class="btn-submit" onclick="submitDangKyMoi()">Hoàn tất đăng ký</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 11: TÀI KHOẢN (ĐĂNG NHẬP + ĐỔI ẢNH 3x4 + ĐỔI MẬT KHẨU) ================= -->
+<div class="sub-page" id="viewTaiKhoan">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewTaiKhoan')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Tài khoản cư dân</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box" id="boxDangNhap">
+      <h4 style="margin-bottom:12px; color:var(--jade-deep);">Đăng nhập tài khoản</h4>
+      <div class="form-group">
+        <label>Tài khoản (Số CCCD hoặc Số điện thoại)</label>
+        <input type="text" id="loginId" placeholder="Nhập số CCCD hoặc SĐT">
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <input type="password" id="loginPass" placeholder="Nhập mật khẩu">
+      </div>
+      <button class="btn-submit" onclick="thucHienDangNhap()">Đăng nhập</button>
+
+      <button class="btn-change-pass-stylish" onclick="openPage('viewDoiMatKhau')">
+        <span>🔑 Đổi mật khẩu tài khoản</span>
+      </button>
+    </div>
+
+    <div class="form-box" id="boxThongTinCaNhan" style="display:none;">
+      <!-- Khung đổi ảnh thẻ 3x4 trực quan trong trang cá nhân -->
+      <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:15px;">
+        <div class="avatar-wrapper" style="width:70px; height:70px;" onclick="document.getElementById('userAvatarFile').click()">
+          <div class="avatar-circle">
+            <span id="profAvatarIcon" style="font-size:32px;">👤</span>
+            <img id="profAvatarImg" class="avatar-img" alt="Ảnh 3x4">
+          </div>
+          <div class="avatar-badge-cam" style="width:22px; height:22px; font-size:12px;">📷</div>
+        </div>
+        <span style="font-size:12px; color:var(--jade-emerald); font-weight:700; margin-top:6px; cursor:pointer;" onclick="document.getElementById('userAvatarFile').click()">Chạm để cập nhật ảnh 3x4</span>
+      </div>
+
+      <h4 style="margin-bottom:12px; color:var(--jade-emerald);">Thông tin định danh cư dân</h4>
+      <div class="form-group"><label>Họ và tên</label><input type="text" id="profHoTen" readonly></div>
+      <div class="form-group"><label>Số điện thoại</label><input type="text" id="profSDT" readonly></div>
+      <div class="form-group"><label>Số CCCD (Tài khoản)</label><input type="text" id="profCCCD" readonly></div>
+      <div class="form-group"><label>Khu phố</label><input type="text" id="profKhuPho" readonly></div>
+      <div class="form-group"><label>Địa chỉ</label><input type="text" id="profDiaChi" readonly></div>
+
+      <button class="btn-change-pass-stylish" style="background:#FFF9ED; border-color:#F5C067; color:#B78103;" onclick="openPage('viewDoiMatKhau')">
+        <span>🔑 Đổi mật khẩu tài khoản</span>
+      </button>
+      <button class="btn-delete" style="background:#587366;" onclick="thucHienDangXuat()">Đăng xuất tài khoản</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GIAO DIỆN 12: ĐỔI MẬT KHẨU ================= -->
+<div class="sub-page" id="viewDoiMatKhau">
+  <div class="sub-container">
+    <div class="sub-header">
+      <button class="btn-back" onclick="closePage('viewDoiMatKhau')">←</button>
+      <h3 style="font-size:16px; color:var(--jade-dark);">Đổi mật khẩu tài khoản</h3>
+      <div style="width:24px;"></div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-group">
+        <label>Tài khoản (Số CCCD hoặc Số điện thoại) <span class="req">*</span></label>
+        <input type="text" id="chgId" placeholder="Nhập số CCCD hoặc SĐT của bạn">
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu hiện tại <span class="req">*</span></label>
+        <input type="password" id="oldPass" placeholder="Nhập mật khẩu đang sử dụng">
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu mới <span class="req">*</span></label>
+        <input type="password" id="newPass" placeholder="Tối thiểu 6 ký tự">
+      </div>
+      <div class="form-group">
+        <label>Nhập lại mật khẩu mới <span class="req">*</span></label>
+        <input type="password" id="confirmPass" placeholder="Nhập lại mật khẩu mới">
+      </div>
+
+      <button class="btn-submit" onclick="submitDoiMatKhau()">Lưu thay đổi mật khẩu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbw7eQoaGuDBWNVwKTRPzdZIVuqCWXTTrDvTemto73WSliCZTFzWKpPvFF9q-4lKX2TX8g/exec";
+  // DỮ LIỆU CHUẨN 16 KHU PHỐ
+  const DANH_SACH_KHU_PHO = [
+    { id: "KP 1", name: "Khu Phố 1", ho: "1.138", dan: "4.399", dientich: "491,35" },
+    { id: "KP 2", name: "Khu Phố 2", ho: "1.312", dan: "5.071", dientich: "41,85" },
+    { id: "KP 3", name: "Khu Phố 3", ho: "1.335", dan: "5.160", dientich: "116,77" },
+    { id: "KP 4", name: "Khu Phố 4", ho: "1.238", dan: "4.785", dientich: "85,53" },
+    { id: "KP 5", name: "Khu Phố 5", ho: "1.336", dan: "5.164", dientich: "95" },
+    { id: "KP 6", name: "Khu Phố 6", ho: "1.191", dan: "4.604", dientich: "86,07" },
+    { id: "KP 7", name: "Khu Phố 7", ho: "1.374", dan: "5.311", dientich: "55,43" },
+    { id: "KP 8", name: "Khu Phố 8", ho: "1.338", dan: "5.172", dientich: "83,05" },
+    { id: "KP 9", name: "Khu Phố 9", ho: "1.188", dan: "4.592", dientich: "469,17" },
+    { id: "KP 10", name: "Khu Phố 10", ho: "1.094", dan: "4.229", dientich: "89" },
+    { id: "KP 11", name: "Khu Phố 11", ho: "1.110", dan: "4.291", dientich: "88,15" },
+    { id: "KP 12", name: "Khu Phố 12", ho: "1.325", dan: "5.122", dientich: "79,05" },
+    { id: "KP 13", name: "Khu Phố 13", ho: "1.127", dan: "4.356", dientich: "422,61" },
+    { id: "KP 14", name: "Khu Phố 14", ho: "1.120", dan: "4.329", dientich: "368,98" },
+    { id: "KP 15", name: "Khu Phố 15", ho: "1.232", dan: "4.762", dientich: "363,71" },
+    { id: "KP 16", name: "Khu Phố 16", ho: "932", dan: "3.603", dientich: "1.791,67" }
+  ];
+
+  function initKhuPho() {
+    const selKP = document.getElementById('selKhuPho');
+    const regKP = document.getElementById('regKhuPhoSelect');
+    const addKP = document.getElementById('addKP');
+    let opts = "";
+    DANH_SACH_KHU_PHO.forEach(kp => { opts += `<option value="${kp.id}">${kp.name}</option>`; });
+    selKP.innerHTML = opts;
+    regKP.innerHTML = opts;
+    addKP.innerHTML = opts;
+    onKhuPhoChange();
+  }
+
+  function onKhuPhoChange() {
+    const selVal = document.getElementById('selKhuPho').value;
+    const item = DANH_SACH_KHU_PHO.find(k => k.id === selVal);
+    if(item) {
+      document.getElementById('dispDanCu').innerText = item.dan;
+      document.getElementById('dispHoDan').innerText = item.ho;
+      document.getElementById('dispDienTich').innerText = item.dientich;
+      
+      document.getElementById('meetTitle').value = "Họp triển khai công tác số hóa " + item.name;
+      document.getElementById('meetLocation').value = "Văn phòng Ban điều hành " + item.name + " - Phường Phước Thắng";
+      document.getElementById('meetHost').value = "👤 Trưởng " + item.name;
+    }
+  }
+
+  function openPage(id) { document.getElementById(id).style.display = 'flex'; }
+  function closePage(id) { document.getElementById(id).style.display = 'none'; }
+  function goHome() { document.querySelectorAll('.sub-page').forEach(p => p.style.display = 'none'); }
+
+  // XỬ LÝ ĐÍNH KÈM VÀ HIỂN THỊ ẢNH 3x4
+  function handleUserAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Img = e.target.result;
+        renderAvatar(base64Img);
+        // Lưu ảnh vào hồ sơ cục bộ
+        let saved = JSON.parse(localStorage.getItem('user_dancu')) || {};
+        saved.avatar = base64Img;
+        localStorage.setItem('user_dancu', JSON.stringify(saved));
+        alert("Đã cập nhật ảnh chân dung 3x4 thành công!");
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function renderAvatar(base64Img) {
+    if (base64Img) {
+      document.getElementById('avatarImg').src = base64Img;
+      document.getElementById('avatarImg').style.display = 'block';
+      document.getElementById('avatarIcon').style.display = 'none';
+
+      document.getElementById('profAvatarImg').src = base64Img;
+      document.getElementById('profAvatarImg').style.display = 'block';
+      document.getElementById('profAvatarIcon').style.display = 'none';
+    } else {
+      document.getElementById('avatarImg').style.display = 'none';
+      document.getElementById('avatarIcon').style.display = 'block';
+      document.getElementById('profAvatarImg').style.display = 'none';
+      document.getElementById('profAvatarIcon').style.display = 'block';
+    }
+  }
+
+  function openCapNhat(name, role, cccd, dob, gender, sdt, nghe, noiLam, trinhDo, chuyenMon, thuongTru, tamTru, ghiChu, danToc, tonGiao) {
+    document.getElementById('upName').value = name;
+    document.getElementById('upDob').value = dob;
+    document.getElementById('upGender').value = gender;
+    document.getElementById('upCCCD').value = cccd;
+    document.getElementById('upSDT').value = sdt;
+    document.getElementById('upNgheNghiep').value = nghe;
+    document.getElementById('upNoiLamViec').value = noiLam;
+    document.getElementById('upTrinhDo').value = trinhDo;
+    document.getElementById('upChuyenMon').value = chuyenMon;
+    document.getElementById('upDiaChiThuongTru').value = thuongTru;
+    document.getElementById('upDiaChiTamTru').value = tamTru;
+    document.getElementById('upGhiChu').value = ghiChu;
+    document.getElementById('upDanToc').value = danToc;
+    document.getElementById('upTonGiao').value = tonGiao;
+    openPage('viewCapNhatCuDan');
+  }
+
+  function submitThemThanhVien() {
+    const name = document.getElementById('addName').value;
+    const dob = document.getElementById('addDob').value;
+    const gender = document.getElementById('addGender').value;
+    const cccd = document.getElementById('addCCCD').value;
+    const sdt = document.getElementById('addSDT').value;
+    const quanHe = document.getElementById('addQuanHe').value;
+
+    if(!name || !dob || !gender || !cccd || !sdt) {
+      return alert("Vui lòng nhập đủ các trường bắt buộc (*): Họ tên, Ngày sinh, Giới tính, CCCD và Số điện thoại!");
+    }
+
+    const list = document.getElementById('listThanhVienBox');
+    const newCard = document.createElement('div');
+    newCard.className = 'member-card';
+    newCard.onclick = () => openCapNhat(name, quanHe, cccd, dob, gender, sdt, '', '', '', '', '', '', '', 'Kinh', 'Không');
+    newCard.innerHTML = `
+      <div class="member-name">${name} - <span class="member-role">${quanHe}</span></div>
+      <div class="member-info-row"><span>CCCD: ${cccd}</span><span>Ngày sinh: ${dob}</span></div>
+      <div class="member-info-row"><span>Giới tính: ${gender}</span><span>Tình trạng: Thường trú</span></div>
+      <span class="badge-approved" style="background:#E67E22;">Chờ phê duyệt</span>
+    `;
+    list.appendChild(newCard);
+    document.getElementById('lblCountThanhVien').innerText = "Danh sách thành viên (3)";
+
+    alert("Đã gửi yêu cầu thêm thành viên mới tới Ban điều hành Khu phố! Trạng thái phê duyệt sẽ được thông báo đến bạn.");
+    closePage('viewThemMoiThanhVien');
+  }
+
+  function submitCapNhatThanhVien() {
+    const name = document.getElementById('upName').value;
+    const cccd = document.getElementById('upCCCD').value;
+    const sdt = document.getElementById('upSDT').value;
+    const dob = document.getElementById('upDob').value;
+    if(!name || !cccd || !sdt || !dob) {
+      return alert("Vui lòng không để trống các trường bắt buộc (*): Họ tên, Ngày sinh, CCCD, SĐT!");
+    }
+    alert("Đã gửi yêu cầu cập nhật thông tin thành công! Đang chờ Ban điều hành khu phố xác nhận.");
+    closePage('viewCapNhatCuDan');
+  }
+
+  function submitXoaThanhVien() {
+    if(confirm("Bạn có chắc chắn muốn gửi yêu cầu xoá thành viên này khỏi hộ?")) {
+      alert("Đã gửi yêu cầu xoá thành viên!");
+      closePage('viewCapNhatCuDan');
+    }
+  }
+
+  function submitDangKyMoi() {
+    const hoTen = document.getElementById('regHoTen').value;
+    const ngaySinh = document.getElementById('regNgaySinh').value;
+    const gioiTinh = document.getElementById('regGioiTinh').value;
+    const cccd = document.getElementById('regCCCD').value;
+    const sdt = document.getElementById('regSDT').value;
+    const pass = document.getElementById('regPass').value;
+    const kpId = document.getElementById('regKhuPhoSelect').value;
+    const kpName = DANH_SACH_KHU_PHO.find(k => k.id === kpId).name;
+    const ngheNghiep = document.getElementById('regNgheNghiep').value;
+    const noiLamViec = document.getElementById('regNoiLamViec').value;
+    const trinhDo = document.getElementById('regTrinhDo').value;
+    const chuyenMon = document.getElementById('regChuyenMon').value;
+    const thuongTru = document.getElementById('regThuongTru').value;
+    const tamTru = document.getElementById('regTamTru').value;
+    const ghiChu = document.getElementById('regGhiChu').value;
+
+    if(!hoTen || !ngaySinh || !gioiTinh || !cccd || !sdt || !pass) {
+      return alert("Vui lòng điền đủ các trường bắt buộc (*): Họ tên, Ngày sinh, Giới tính, CCCD (Tài khoản), Số điện thoại và Mật khẩu đăng ký!");
+    }
+
+    const userProfile = { hoTen, ngaySinh, gioiTinh, cccd, sdt, pass, kpName, ngheNghiep, noiLamViec, trinhDo, chuyenMon, thuongTru, tamTru, ghiChu };
+    localStorage.setItem('user_dancu', JSON.stringify(userProfile));
+    capNhatThongTinHoDan(userProfile);
+
+    alert("Đăng ký thành công! Hồ sơ đã gửi đến Trưởng khu phố phê duyệt.");
+    closePage('viewDangKy');
+  }
+
+  function capNhatThongTinHoDan(user) {
+    document.getElementById('lblHeaderName').innerText = "Xin chào, " + user.hoTen;
+    document.getElementById('lblHeaderPhone').innerText = user.cccd || user.sdt;
+    
+    document.getElementById('hdChuHo').value = user.hoTen;
+    document.getElementById('hdNgaySinh').value = user.ngaySinh || "20/05/1980";
+    document.getElementById('hdGioiTinh').value = user.gioiTinh || "Nam";
+    document.getElementById('hdCCCD').value = user.cccd;
+    document.getElementById('hdSDT').value = user.sdt;
+    document.getElementById('hdKhuPho').value = user.kpName;
+    document.getElementById('hdNgheNghiep').value = user.ngheNghiep || "Kỹ sư xây dựng";
+    document.getElementById('hdNoiLamViec').value = user.noiLamViec || "Công ty CP Xây Dựng Số 1";
+    document.getElementById('hdTrinhDo').value = user.trinhDo || "Đại học";
+    document.getElementById('hdChuyenMon').value = user.chuyenMon || "Kỹ thuật công trình";
+    document.getElementById('hdThuongTru').value = user.thuongTru || "123 đường Lê Lai";
+    document.getElementById('hdTamTru').value = user.tamTru || "Không";
+    document.getElementById('hdGhiChu').value = user.ghiChu || "Gia đình chấp hành tốt chủ trương chính sách";
+
+    document.getElementById('profHoTen').value = user.hoTen;
+    document.getElementById('profSDT').value = user.sdt;
+    document.getElementById('profCCCD').value = user.cccd;
+    document.getElementById('profKhuPho').value = user.kpName;
+    document.getElementById('profDiaChi').value = (user.thuongTru || "") + ", " + user.kpName;
+    document.getElementById('chgId').value = user.cccd || user.sdt;
+
+    if (user.avatar) {
+      renderAvatar(user.avatar);
+    }
+
+    document.getElementById('boxDangNhap').style.display = 'none';
+    document.getElementById('boxThongTinCaNhan').style.display = 'block';
+  }
+
+  function thucHienDangNhap() {
+    const id = document.getElementById('loginId').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    if(!id || !pass) return alert("Vui lòng nhập Tài khoản (CCCD hoặc SĐT) và Mật khẩu!");
+
+    const saved = JSON.parse(localStorage.getItem('user_dancu'));
+    if(saved && (saved.cccd === id || saved.sdt === id)) {
+      if(saved.pass && saved.pass !== pass) {
+        return alert("Mật khẩu không chính xác!");
+      }
+      capNhatThongTinHoDan(saved);
+      alert("Đăng nhập thành công!");
+    } else {
+      const defaultUser = {
+        hoTen: "Nguyễn Văn A",
+        ngaySinh: "20/05/1980",
+        gioiTinh: "Nam",
+        cccd: id,
+        sdt: "0123456786",
+        pass: pass,
+        kpName: "Khu Phố 1",
+        ngheNghiep: "Kỹ sư xây dựng",
+        noiLamViec: "Công ty CP Xây Dựng Số 1",
+        trinhDo: "Đại học",
+        chuyenMon: "Kỹ thuật công trình",
+        thuongTru: "123 đường Lê Lai",
+        tamTru: "Không",
+        ghiChu: "Gia đình chấp hành tốt quy định địa phương"
+      };
+      capNhatThongTinHoDan(defaultUser);
+      alert("Đăng nhập thành công với tài khoản " + id);
+    }
+  }
+
+  function submitDoiMatKhau() {
+    const id = document.getElementById('chgId').value.trim();
+    const oldP = document.getElementById('oldPass').value.trim();
+    const newP = document.getElementById('newPass').value.trim();
+    const confirmP = document.getElementById('confirmPass').value.trim();
+
+    if(!id || !oldP || !newP || !confirmP) {
+      return alert("Vui lòng điền đủ: Tài khoản, Mật khẩu hiện tại và Mật khẩu mới!");
+    }
+    if(newP.length < 6) {
+      return alert("Mật khẩu mới phải có tối thiểu 6 ký tự!");
+    }
+    if(newP !== confirmP) {
+      return alert("Mật khẩu mới và Nhập lại mật khẩu không trùng khớp!");
+    }
+
+    let saved = JSON.parse(localStorage.getItem('user_dancu')) || {};
+    if(saved.cccd && (saved.cccd !== id && saved.sdt !== id)) {
+      return alert("Tài khoản (CCCD/SĐT) không khớp với tài khoản đã đăng ký trên máy!");
+    }
+    if(saved.pass && saved.pass !== oldP) {
+      return alert("Mật khẩu hiện tại không đúng!");
+    }
+
+    saved.pass = newP;
+    if(!saved.cccd) saved.cccd = id;
+    localStorage.setItem('user_dancu', JSON.stringify(saved));
+
+    alert("Đổi mật khẩu thành công! Mật khẩu mới đã được cập nhật đồng bộ.");
+    document.getElementById('oldPass').value = "";
+    document.getElementById('newPass').value = "";
+    document.getElementById('confirmPass').value = "";
+    closePage('viewDoiMatKhau');
+  }
+
+  function updateFbFileName() {
+    const file = document.getElementById('fbFile').files[0];
+    if (file) {
+      document.getElementById('fbUploadNotice').innerHTML = `Đã chọn: <b>${file.name}</b> (${(file.size/1024/1024).toFixed(2)} MB)`;
+    }
+  }
+
+  function updatePaFileName() {
+    const file = document.getElementById('paFile').files[0];
+    if (file) {
+      document.getElementById('paUploadNotice').innerHTML = `Đã đính kèm: <b>${file.name}</b> (${(file.size/1024/1024).toFixed(2)} MB)`;
+    }
+  }
+
+  function submitPhanAnhDoThi() {
+    const hoTen = document.getElementById('paHoTen').value.trim();
+    const cccd = document.getElementById('paCCCD').value.trim();
+    const diaChi = document.getElementById('paDiaChi').value.trim();
+    const noiDung = document.getElementById('paNoiDung').value.trim();
+
+    if(!hoTen || !cccd || !diaChi || !noiDung) {
+      return alert("Vui lòng nhập đầy đủ: Họ tên, Số CCCD, Địa chỉ và Nội dung phản ánh!");
+    }
+
+    alert("Gửi phản ánh an ninh trật tự thành công! Hồ sơ đã được chuyển đến Thường trực Đảng ủy & UBND phường Phước Thắng.");
+    document.getElementById('paDiaChi').value = "";
+    document.getElementById('paNoiDung').value = "";
+    document.getElementById('paUploadNotice').innerText = "Chạm để tải file hiện trường (PDF, Ảnh, Video)";
+    closePage('viewPhanAnhDoThi');
+  }
+
+  function submitGopY() {
+    const title = document.getElementById('fbTieuDe').value.trim();
+    const content = document.getElementById('fbNoiDung').value.trim();
+    if(!title || !content) return alert("Vui lòng nhập Tiêu đề và Nội dung ý kiến góp ý!");
+
+    alert("Đã gửi ý kiến góp ý thành công tới Ban điều hành Khu phố! Bạn có thể theo dõi tiến độ trả lời tại mục Thông tin khu phố.");
+    document.getElementById('fbTieuDe').value = "";
+    document.getElementById('fbNoiDung').value = "";
+    document.getElementById('fbUploadNotice').innerText = "Chạm để chọn tệp từ máy (PDF, Ảnh, Video)";
+    closePage('viewGuiYKien');
+  }
+
+  function openTraLoiGopY(tieuDe, trangThai, cauTraLoi) {
+    document.getElementById('ansTitle').value = tieuDe;
+    document.getElementById('ansStatus').value = trangThai;
+    document.getElementById('ansContent').value = cauTraLoi;
+    openPage('viewTraLoiGopY');
+  }
+
+  function submitCapNhatTraLoi() {
+    alert("Đã cập nhật câu trả lời từ Ban điều hành khu phố tới cư dân thành công!");
+    closePage('viewTraLoiGopY');
+  }
+
+  function thucHienDangXuat() {
+    document.getElementById('boxDangNhap').style.display = 'block';
+    document.getElementById('boxThongTinCaNhan').style.display = 'none';
+    alert("Đã đăng xuất tài khoản!");
+  }
+
+  window.onload = function() {
+    initKhuPho();
+    const saved = JSON.parse(localStorage.getItem('user_dancu'));
+    if(saved) capNhatThongTinHoDan(saved);
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(console.error);
+  }
+</script>
+</body>
+</html>

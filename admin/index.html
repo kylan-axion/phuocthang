@@ -1,1 +1,897 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>UBND PHƯỚC THẮNG - Cổng Quản Trị Dân Cư Số</title>
+  <style>
+    :root {
+      --admin-jade-dark: #002B1F; --admin-jade: #004D40; --admin-emerald: #00A86B;
+      --admin-gold: #FFD700; --admin-gold-light: #FFF0A8; --admin-red: #A30D11; --admin-bg: #F0F4F2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--admin-bg); color: #1E2925; display: flex; height: 100vh; overflow: hidden; }
 
+    /* SIDEBAR */
+    .sidebar { width: 285px; background: linear-gradient(180deg, var(--admin-jade-dark) 0%, var(--admin-jade) 100%); color: white; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: 3px 0 15px rgba(0,0,0,0.15); z-index: 10; }
+    .brand-box { padding: 22px 20px; border-bottom: 1.5px solid rgba(255, 215, 0, 0.25); background: rgba(0,0,0,0.2); }
+    .brand-title-gold {
+      font-size: 19px; font-weight: 900; letter-spacing: 0.8px; white-space: nowrap; text-transform: uppercase;
+      background: linear-gradient(90deg, #FFE082 0%, #FFFFFF 25%, #FFD700 50%, #FFB300 80%, #FFE082 100%);
+      background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.7)); animation: goldStream 4s linear infinite; line-height: 1.3;
+    }
+    @keyframes goldStream { 0% { background-position: 200% center; } 100% { background-position: 0% center; } }
+    .brand-sub { font-size: 12px; color: var(--admin-gold-light); font-weight: 700; margin-top: 5px; opacity: 0.9; }
+
+    .nav-list { list-style: none; padding: 18px 12px; overflow-y: auto; flex: 1; }
+    .nav-item { 
+      padding: 13px 18px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 14px; 
+      font-size: 14px; font-weight: 700; margin-bottom: 8px; transition: all 0.2s ease; color: #D6E8E0;
+    }
+    .nav-item:hover { background: rgba(0, 168, 107, 0.2); color: #FFF; }
+    .nav-item.active { 
+      background: linear-gradient(90deg, #00694B 0%, #004D36 100%) !important;
+      border-left: 6px solid var(--admin-gold) !important; color: #FFFFFF !important; font-weight: 800 !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .nav-badge { margin-left: auto; background: var(--admin-red); color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 800; }
+
+    /* WORKSPACE */
+    .workspace { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    .topbar { background: #FFFFFF; height: 68px; border-bottom: 1.5px solid #D6E2DD; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; flex-shrink: 0; }
+    .topbar-title { font-size: 16.5px; font-weight: 800; color: var(--admin-jade); letter-spacing: 0.3px; }
+    .admin-profile { display: flex; align-items: center; gap: 12px; }
+    .admin-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--admin-jade); color: var(--admin-gold); display: flex; align-items: center; justify-content: center; font-weight: 900; border: 2px solid var(--admin-gold); }
+
+    .content-area { padding: 25px; }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* STATS & CHARTS */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 22px; }
+    .stat-card { background: #FFF; border-radius: 14px; padding: 18px 20px; border: 1px solid #DCE6E2; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between; }
+    .stat-info h4 { font-size: 12px; color: #5B7369; text-transform: uppercase; font-weight: 800; margin-bottom: 6px; }
+    .stat-info div { font-size: 24px; font-weight: 900; color: var(--admin-jade); }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+
+    .chart-panel { background: #FFF; border-radius: 14px; padding: 20px; border: 1px solid #DCE6E2; margin-bottom: 22px; max-height: 420px; overflow-y: auto; }
+    .chart-header { font-size: 15px; font-weight: 800; color: var(--admin-jade); margin-bottom: 15px; position: sticky; top: 0; background: white; padding-bottom: 8px; border-bottom: 1px solid #EEE; z-index: 2; }
+    .progress-bar-wrap { margin-bottom: 14px; }
+    .progress-bar-label { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
+    .progress-track { height: 11px; background: #E9ECEF; border-radius: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+
+    /* TOOLBAR CARD */
+    .toolbar-card { background: #FFF; border-radius: 14px; padding: 16px 20px; border: 1px solid #DCE6E2; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+    .tool-group { display: flex; align-items: center; gap: 10px; }
+    .select-kp { padding: 9px 14px; border: 1.8px solid var(--admin-emerald); border-radius: 8px; font-size: 13.5px; font-weight: 700; color: var(--admin-jade); outline: none; background: #F8FCFA; cursor: pointer; }
+    
+    .btn-tool { padding: 9px 15px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; border: none; display: flex; align-items: center; gap: 6px; }
+    .btn-excel-export { background: #1D6F42; color: white; }
+    .btn-excel-import { background: #0078D4; color: white; }
+    .btn-excel-template { background: #5C6B73; color: white; }
+
+    /* TABLE */
+    .panel-table { background: #FFF; border-radius: 14px; border: 1px solid #DCE6E2; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 20px; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .panel-header h3 { font-size: 15px; font-weight: 800; color: var(--admin-jade); }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: #F4F8F6; padding: 12px 14px; font-size: 12.5px; color: #4B6358; text-transform: uppercase; border-bottom: 1px solid #DCE6E2; }
+    td { padding: 13px 14px; font-size: 13px; border-bottom: 1px solid #EDF3F0; color: #2C3E35; }
+    tr { cursor: pointer; }
+    tr:hover { background: #F9FCFB; }
+    tr.selected-row { background: #E8F5E9 !important; border-left: 4px solid var(--admin-emerald); }
+
+    .btn-action-approve { background: var(--admin-emerald); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; margin-right: 4px; }
+    .btn-action-reject { background: #DC3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; }
+    .btn-action-edit { background: #0078D4; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; }
+    .btn-media-view { background: #E7F0FD; color: #0078D4; border: 1px solid #B9D5F8; padding: 5px 12px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+
+    /* MODAL */
+    .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 999; align-items: center; justify-content: center; }
+    .modal-window { background: white; width: 680px; border-radius: 16px; padding: 25px; box-shadow: 0 10px 35px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+    .form-group label { font-size: 12.5px; font-weight: 700; color: #3E544A; }
+    .form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1.5px solid #CCD0D5; border-radius: 8px; font-size: 13.5px; outline: none; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--admin-emerald); }
+  </style>
+</head>
+<body>
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand-box">
+      <div class="brand-title-gold">UBND PHƯỚC THẮNG</div>
+      <div class="brand-sub">Trung Tâm Dữ Liệu Dân Cư</div>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item active" onclick="switchAdminTab('tabDashboard', this)"><span>📊</span> Bảng Điều Hành Tổng Thể</li>
+      <li class="nav-item" onclick="switchAdminTab('tabCuDan', this)"><span>👥</span> Quản Lý Cư Dân & Nhân Khẩu <span class="nav-badge">28</span></li>
+      <li class="nav-item" onclick="switchAdminTab('tabHoDan', this)"><span>🏠</span> Quản Lý Hộ Gia Đình</li>
+      <li class="nav-item" onclick="switchAdminTab('tabCuocHop', this)"><span>📅</span> Quản Lý Cuộc Họp</li>
+      <li class="nav-item" onclick="switchAdminTab('tabGopY', this)"><span>💬</span> Ý Kiến & Góp Ý Cơ Sở <span class="nav-badge" style="background:#E67E22;">14</span></li>
+      <li class="nav-item" onclick="switchAdminTab('tabAnNinh', this)"><span>⭐</span> Phản Ánh An Ninh Đô Thị <span class="nav-badge">05</span></li>
+      <li class="nav-item" onclick="switchAdminTab('tabPhanQuyen', this)"><span>🔑</span> Phân Quyền Khu Phố & Cư Dân</li>
+    </ul>
+  </aside>
+
+  <!-- ================= WORKSPACE ================= -->
+  <main class="workspace">
+    <header class="topbar">
+      <div class="topbar-title">HỆ THỐNG ĐIỀU HÀNH & GIÁM SÁT DÂN CƯ SỐ - PHƯỚC THẮNG</div>
+      <div class="admin-profile">
+        <div style="text-align:right;">
+          <div style="font-weight:800; font-size:13.5px;">Ban Chỉ Đạo Chuyển Đổi Số</div>
+          <div style="font-size:11px; color:#5B7369;">Cổng Quản Trị Trực Tiếp</div>
+        </div>
+        <div class="admin-avatar">PT</div>
+      </div>
+    </header>
+
+    <div class="content-area">
+
+      <!-- ================= TAB 1: BẢNG ĐIỀU HÀNH TỔNG THỂ ================= -->
+      <div class="view-section active" id="tabDashboard">
+        <section class="stats-row">
+          <div class="stat-card">
+            <div class="stat-info"><h4>Tổng Nhân Khẩu</h4><div>68.420</div></div>
+            <div class="stat-icon" style="background:#E2F7ED; color:var(--admin-emerald);">👥</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info"><h4>Tổng Hộ Gia Đình</h4><div>18.825</div></div>
+            <div class="stat-icon" style="background:#FFF6E5; color:#E67E22;">🏠</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info"><h4>Hồ Sơ Chờ Phê Duyệt</h4><div style="color:var(--admin-red);">28</div></div>
+            <div class="stat-icon" style="background:#FDECEE; color:var(--admin-red);">⏳</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info"><h4>Địa Bàn Trực Thuộc</h4><div>16 Khu Phố</div></div>
+            <div class="stat-icon" style="background:#E8F0FE; color:#1877F2;">🏛️</div>
+          </div>
+        </section>
+
+        <!-- BIỂU ĐỒ 16 KHU PHỐ KÈM DIỆN TÍCH (ĐÃ XÓA CHỮ CẬP NHẬT ĐỒNG BỘ) -->
+        <section class="chart-panel">
+          <div class="chart-header">
+            <span>TIẾN ĐỘ THU THẬP VÀ ĐỊNH DANH DÂN CƯ SỐ 16 KHU PHỐ</span>
+          </div>
+          <div id="progress16KhuPhoBox"></div>
+        </section>
+
+        <!-- BẢNG CHỜ DUYỆT -->
+        <section class="panel-table">
+          <div class="panel-header">
+            <h3>DANH SÁCH ĐĂNG KÝ & BIẾN ĐỘNG CHỜ PHÊ DUYỆT</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Họ và Tên</th><th>Số CCCD (Tài khoản)</th><th>Số Điện Thoại</th><th>Khu Phố</th>
+                <th>Địa Chỉ Thường Trú</th><th>Nghề Nghiệp / Trình Độ</th><th>Trạng Thái</th><th style="text-align:center;">Thao Tác Duyệt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr onclick="selectTableRow(this)">
+                <td><b>Nguyễn Văn A</b></td><td>079080309999</td><td>0123456786</td>
+                <td><span style="color:var(--admin-emerald); font-weight:700;">Khu Phố 1</span></td>
+                <td>123 đường Lê Lai</td><td>Kỹ sư xây dựng / Đại học</td>
+                <td><span style="background:#FFF4E5; color:#E67E22; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">Đăng ký mới</span></td>
+                <td style="text-align:center;">
+                  <button class="btn-action-approve" onclick="pheDuyetHoSo(this, 'Nguyễn Văn A')">Phê Duyệt</button>
+                  <button class="btn-action-reject" onclick="tuChoiHoSo(this)">Từ Chối</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- ================= TAB 2: QUẢN LÝ CƯ DÂN (ĐẦY ĐỦ 16 KHU PHỐ - HÌNH 1) ================= -->
+      <div class="view-section" id="tabCuDan">
+        <section class="toolbar-card">
+          <div class="tool-group">
+            <label style="font-size:13px; font-weight:800; color:var(--admin-jade);">Lọc Khu Phố:</label>
+            <!-- TÍCH HỢP ĐẦY ĐỦ 16 KHU PHỐ CHUẨN XÁC THEO HÌNH 1 -->
+            <select class="select-kp" id="filterCuDanKP" onchange="filterCuDanTable()">
+              <option value="ALL">-- Tất cả 16 Khu phố toàn Phường --</option>
+              <option value="Khu Phố 1">Khu Phố 1</option><option value="Khu Phố 2">Khu Phố 2</option>
+              <option value="Khu Phố 3">Khu Phố 3</option><option value="Khu Phố 4">Khu Phố 4</option>
+              <option value="Khu Phố 5">Khu Phố 5</option><option value="Khu Phố 6">Khu Phố 6</option>
+              <option value="Khu Phố 7">Khu Phố 7</option><option value="Khu Phố 8">Khu Phố 8</option>
+              <option value="Khu Phố 9">Khu Phố 9</option><option value="Khu Phố 10">Khu Phố 10</option>
+              <option value="Khu Phố 11">Khu Phố 11</option><option value="Khu Phố 12">Khu Phố 12</option>
+              <option value="Khu Phố 13">Khu Phố 13</option><option value="Khu Phố 14">Khu Phố 14</option>
+              <option value="Khu Phố 15">Khu Phố 15</option><option value="Khu Phố 16">Khu Phố 16</option>
+            </select>
+          </div>
+          <div class="tool-group">
+            <button class="btn-tool btn-excel-template" onclick="taiFileMauExcel()">📥 Tải File Mẫu Excel</button>
+            <button class="btn-tool btn-excel-import" onclick="moModalImport()">📂 Import File Chuẩn Dân Cư</button>
+            <button class="btn-tool btn-excel-export" onclick="xuatFileExcelTheoLoc()">📊 Tải File Thông Tin</button>
+          </div>
+        </section>
+
+        <section class="panel-table">
+          <div class="panel-header">
+            <h3>DANH SÁCH NHÂN KHẨU CHI TIẾT</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Họ và Tên</th><th>Ngày Sinh / Giới Tính</th><th>Số CCCD (Tài khoản)</th><th>Số Điện Thoại</th>
+                <th>Khu Phố</th><th>Nghề Nghiệp / Nơi Làm Việc</th><th>Trình Độ / Chuyên Môn</th><th>Ghi Chú</th><th style="text-align:center;">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="tableCuDanBody">
+              <tr data-kp="Khu Phố 1" onclick="selectTableRow(this)">
+                <td><b>Nguyễn Văn A</b></td><td>20/05/1980 | Nam</td><td>079080309999</td><td>0123456786</td>
+                <td><span style="color:var(--admin-emerald); font-weight:700;">Khu Phố 1</span></td>
+                <td>Kỹ sư | Cty Xây Dựng 1</td><td>Đại học | Kỹ thuật CT</td><td>Chấp hành tốt</td>
+                <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn A', '079080309999', '20/05/1980', 'Nam', '0123456786', 'Khu Phố 1', 'Kỹ sư xây dựng', 'Cty Xây Dựng 1', 'Đại học', 'Kỹ thuật CT', '123 đường Lê Lai', 'Không', 'Chấp hành tốt', 'Kinh', 'Không')">Chỉnh Sửa</button></td>
+              </tr>
+              <tr data-kp="Khu Phố 1" onclick="selectTableRow(this)">
+                <td><b>Nguyễn Văn B</b> (Vợ)</td><td>15/08/1984 | Nữ</td><td>079082333444</td><td>0988776655</td>
+                <td><span style="color:var(--admin-emerald); font-weight:700;">Khu Phố 1</span></td>
+                <td>Kinh doanh | Cửa hàng PT</td><td>12/12 | Kế toán</td><td>Gia đình gương mẫu</td>
+                <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn B', '079082333444', '15/08/1984', 'Nữ', '0988776655', 'Khu Phố 1', 'Kinh doanh', 'Cửa hàng PT', '12/12', 'Kế toán', '123 đường Lê Lai', 'Không', 'Gia đình gương mẫu', 'Kinh', 'Không')">Chỉnh Sửa</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- ================= TAB 3: QUẢN LÝ HỘ GIA ĐÌNH ================= -->
+      <div class="view-section" id="tabHoDan">
+        <section class="toolbar-card">
+          <div class="tool-group"><h3 style="color:var(--admin-jade);">DANH SÁCH SỔ HỘ GIA ĐÌNH TOÀN ĐỊA BÀN</h3></div>
+        </section>
+        <section class="panel-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Mã Hộ</th><th>Chủ Hộ</th><th>Khu Phố</th><th>Địa Chỉ Thường Trú</th><th>Số Nhân Khẩu</th><th>Diện Chính Sách</th><th>Ghi Chú Hộ</th><th style="text-align:center;">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr onclick="selectTableRow(this)">
+                <td><b>HO-079080309999</b></td><td><b>Nguyễn Văn A</b></td><td>Khu Phố 1</td><td>123 đường Lê Lai</td>
+                <td><span style="font-weight:800; color:var(--admin-emerald);">03 người</span></td><td>Không</td><td>Hộ gia đình văn hóa</td>
+                <td style="text-align:center;">
+                  <button class="btn-action-edit" onclick="moXemSuaTongTheHo('HO-079080309999')">Xem & Chỉnh Sửa Hộ</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- ================= TAB 4: QUẢN LÝ CUỘC HỌP ================= -->
+      <div class="view-section" id="tabCuocHop">
+        <section class="toolbar-card">
+          <div class="tool-group"><h3 style="color:var(--admin-jade);">QUẢN LÝ CUỘC HỌP & PHÁT HÀNH GIẤY MỜI THEO KHU PHỐ</h3></div>
+          <button class="btn-tool" style="background:var(--admin-emerald); color:white;" onclick="moModalTaoCuocHop()">
+            ➕ Tạo Cuộc Họp Mới Cho Khu Phố
+          </button>
+        </section>
+        <section class="panel-table">
+          <table>
+            <thead>
+              <tr><th>Tên Cuộc Họp</th><th>Địa Bàn</th><th>Thời Gian Họp</th><th>Địa Điểm</th><th>Chủ Trì</th><th>Giấy Mời Đính Kèm</th><th style="text-align:center;">Thao Tác</th></tr>
+            </thead>
+            <tbody id="cuocHopTableBody">
+              <tr onclick="selectTableRow(this)">
+                <td><b>Họp triển khai công tác số hóa dân cư 2026</b></td><td><span style="color:var(--admin-emerald); font-weight:800;">Khu Phố 1</span></td>
+                <td>15:00 - 16:30 | 04/09/2026</td><td>Văn phòng BĐH Khu Phố 1</td><td>Trưởng Khu Phố 1</td>
+                <td><button class="btn-media-view" onclick="xemFileViewer('Giay_Moi_KP1.pdf', 'pdf')">📄 Xem PDF</button></td>
+                <!-- ĐÃ XÓA CHỮ "PWA CỦA" CHUẨN XÁC THEO HÌNH 3 -->
+                <td style="text-align:center;"><button class="btn-action-approve" onclick="alert('Đã gửi thông báo đến cư dân Khu Phố 1!')">Bắn Tin Nhắn</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- ================= TAB 5: Ý KIẾN & GÓP Ý CƠ SỞ ================= -->
+      <div class="view-section" id="tabGopY">
+        <section class="toolbar-card">
+          <div class="tool-group"><h3 style="color:var(--admin-jade);">QUẢN LÝ Ý KIẾN ĐÓNG GÓP TỪ CƯ DÂN & TRẢ LỜI</h3></div>
+        </section>
+        <section class="panel-table">
+          <table>
+            <thead>
+              <tr><th>Người Gửi</th><th>Khu Phố</th><th>Tiêu Đề & Nội Dung</th><th>Tệp Đính Kèm</th><th>Trạng Thái</th><th>Phản Hồi Khu Phố</th><th style="text-align:center;">Hành Động</th></tr>
+            </thead>
+            <tbody id="gopYTableBody">
+              <tr onclick="selectTableRow(this)">
+                <td><b>Nguyễn Văn A</b><br><span style="font-size:11px;">079080309999</span></td><td>Khu Phố 1</td>
+                <td><b>Sửa chữa đèn đường ngõ 123 Lê Lai</b><br><span style="font-size:12px; color:#555;">Đèn chiếu sáng chập chờn 3 ngày.</span></td>
+                <td><button class="btn-media-view" onclick="xemFileViewer('Hinh_anh_hientruong.jpg', 'img')">🖼️ Xem Ảnh</button></td>
+                <td><span class="status-badge" style="background:#E2F7ED; color:var(--admin-emerald); padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">Đã xử lý</span></td>
+                <td class="reply-text" style="font-size:12px; color:#004D40;">Đã thay bóng LED mới sáng 03/09.</td>
+                <td style="text-align:center;">
+                  <button class="btn-action-edit" onclick="moModalTraLoi('Sửa chữa đèn đường ngõ 123 Lê Lai', this)">Trả Lời / Sửa</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- ================= TAB 6: PHẢN ÁNH AN NINH ĐÔ THỊ ================= -->
+      <div class="view-section" id="tabAnNinh">
+        <section class="toolbar-card" style="border-left:5px solid var(--admin-red);">
+          <div class="tool-group"><h3 style="color:var(--admin-red);">⭐ HỆ THỐNG TIẾP NHẬN PHẢN ÁNH AN NINH TRẬT TỰ ĐÔ THỊ</h3></div>
+        </section>
+        <section class="panel-table">
+          <table>
+            <thead>
+              <tr><th>Người Phản Ánh</th><th>Địa Chỉ Sự Việc</th><th>Nội Dung Chi Tiết</th><th>Chứng Cứ (Ảnh/Video/PDF)</th><th>Trạng Thái</th><th style="text-align:center;">Xử Lý Khẩn Cấp</th></tr>
+            </thead>
+            <tbody>
+              <tr id="rowPA01" onclick="selectTableRow(this)">
+                <td><b>Nguyễn Văn A</b><br><span style="font-size:11px;">0123456786</span></td>
+                <td>Đầu hẻm 45 Lê Lai, Khu Phố 1</td>
+                <td>Tập kết vật liệu lấn chiếm lối đi chung, gây cản trở giao thông.</td>
+                <td>
+                  <button class="btn-media-view" style="color:var(--admin-red); border-color:#F5C2C7;" onclick="xemFileViewer('Video_hientruong.mp4', 'video')">📹 Xem Video</button>
+                </td>
+                <td><span id="statusPA01" style="background:#FFF4E5; color:#E67E22; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">Mới tiếp nhận</span></td>
+                <td style="text-align:center;">
+                  <button class="btn-action-reject" style="background:#A30D11;" onclick="moModalXuLyHinh5('Đầu hẻm 45 Lê Lai, Khu Phố 1')">Chuyển Xử Lý & Trả Kết Quả</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- ================= TAB 7: PHÂN QUYỀN KHU PHỐ & CƯ DÂN ================= -->
+      <div class="view-section" id="tabPhanQuyen">
+        <section class="toolbar-card">
+          <div class="tool-group"><h3 style="color:var(--admin-jade);">PHÂN QUYỀN TÀI KHOẢN CÁN BỘ & DUYỆT TÀI KHOẢN CƯ DÂN</h3></div>
+          <div class="tool-group">
+            <button class="btn-tool" style="background:#0078D4; color:white;" onclick="moModalTaoTaiKhoan('CU_DAN')">👤 Tạo / Duyệt Tài Khoản Cư Dân</button>
+            <button class="btn-tool" style="background:var(--admin-emerald); color:white;" onclick="moModalTaoTaiKhoan('CAN_BO')">🔑 Cấp Quyền Trưởng Khu Phố</button>
+          </div>
+        </section>
+        <section class="panel-table">
+          <table>
+            <thead>
+              <tr><th>Họ Tên</th><th>Tài Khoản (CCCD/SĐT)</th><th>Vai Trò</th><th>Địa Bàn</th><th>Quyền Hạn Gán</th><th style="text-align:center;">Thao Tác</th></tr>
+            </thead>
+            <tbody>
+              <tr onclick="selectTableRow(this)">
+                <td><b>Lê Văn Hùng</b></td><td>0918112233</td><td><span style="background:#E2F7ED; color:var(--admin-emerald); padding:3px 8px; border-radius:5px; font-weight:800; font-size:11px;">Cán bộ Khu phố</span></td>
+                <td><span style="color:var(--admin-emerald); font-weight:800;">Khu Phố 1</span></td><td>Tạo cuộc họp, Duyệt cư dân, Trả lời góp ý</td>
+                <td style="text-align:center;"><button class="btn-action-edit" onclick="alert('Đã mở cấu hình quyền cán bộ!')">Cấu Hình</button></td>
+              </tr>
+              <tr onclick="selectTableRow(this)">
+                <td><b>Nguyễn Văn A</b></td><td>079080309999</td><td><span style="background:#E8F0FE; color:#1877F2; padding:3px 8px; border-radius:5px; font-weight:800; font-size:11px;">Cư dân</span></td>
+                <td>Khu Phố 1</td><td>Chỉ xem cá nhân/hộ mình, nhận thông báo, nhận kết quả phản ánh</td>
+                <td style="text-align:center;"><button class="btn-action-approve" onclick="alert('Tài khoản đã được kích hoạt!')">✓ Đã Duyệt</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= MODAL XEM TRÌNH CHIẾU MEDIA ================= -->
+  <div class="modal-backdrop" id="modalMediaViewer">
+    <div class="modal-window" style="width:700px; text-align:center;">
+      <h3 id="viewerTitle" style="color:var(--admin-jade); margin-bottom:15px;">Xem Tệp Chứng Cứ Đính Kèm</h3>
+      <div id="mediaContainer" style="min-height:280px; display:flex; align-items:center; justify-content:center; background:#F8FCFA; border-radius:12px; border:1px solid #DCE6E2; padding:15px; margin-bottom:15px;"></div>
+      <button style="padding:9px 22px; border:none; background:var(--admin-jade); color:white; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongMediaViewer()">Đóng Cửa Sổ</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL XEM & SỬA TỔNG THỂ HỘ DÂN ================= -->
+  <div class="modal-backdrop" id="modalXemSuaHo">
+    <div class="modal-window" style="width:780px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #EEE; padding-bottom:8px;">
+        <h3 style="color:var(--admin-jade); font-size:16px;">Chi Tiết Sổ Hộ Gia Đình & Toàn Bộ Thành Viên</h3>
+        <span style="font-size:22px; cursor:pointer; color:#888;" onclick="dongModalXemSuaHo()">✕</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group"><label>Mã Hộ</label><input type="text" id="hoMaHo" readonly style="background:#F4F8F6;"></div>
+        <div class="form-group"><label>Chủ hộ *</label><input type="text" id="hoChuHo" value="Nguyễn Văn A"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Ngày sinh</label><input type="text" id="hoNgaySinh" value="20/05/1980"></div>
+        <div class="form-group"><label>Giới tính</label><select id="hoGioiTinh"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Số CCCD</label><input type="text" id="hoCCCD" value="079080309999"></div>
+        <div class="form-group"><label>Số điện thoại</label><input type="text" id="hoSDT" value="0123456786"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Khu phố</label><input type="text" id="hoKhuPho" value="Khu Phố 1" readonly style="background:#F4F8F6;"></div>
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="hoNgheNghiep" value="Kỹ sư xây dựng"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="hoNoiLamViec" value="Công ty CP Xây Dựng Số 1"></div>
+        <div class="form-group"><label>Trình độ</label><input type="text" id="hoTrinhDo" value="Đại học"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="hoChuyenMon" value="Kỹ thuật công trình"></div>
+        <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="hoDiaChi" value="123 đường Lê Lai"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="hoTamTru" value="Không"></div>
+        <div class="form-group"><label>Ghi chú</label><input type="text" id="hoGhiChu" value="Gia đình chấp hành tốt chủ trương chính sách"></div>
+      </div>
+      
+      <h4 style="font-size:14px; color:var(--admin-jade); margin:14px 0 8px 0;">Danh Sách Nhân Khẩu Trong Hộ (03 thành viên)</h4>
+      <table style="margin-bottom:15px;">
+        <thead>
+          <tr><th>Quan hệ</th><th>Họ và tên</th><th>Số CCCD</th><th>Ngày sinh</th><th style="text-align:center;">Thao tác</th></tr>
+        </thead>
+        <tbody id="hoThanhVienBody">
+          <tr>
+            <td><b>Chủ hộ</b></td><td>Nguyễn Văn A</td><td>079080309999</td><td>20/05/1980</td>
+            <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn A', '079080309999', '20/05/1980', 'Nam', '0123456786', 'Khu Phố 1', 'Kỹ sư', 'Cty Xây Dựng 1', 'Đại học', 'Kỹ thuật CT', '123 đường Lê Lai', 'Không', 'Chấp hành tốt')">Sửa</button></td>
+          </tr>
+          <tr>
+            <td><b>Vợ</b></td><td>Nguyễn Văn B</td><td>079082333444</td><td>15/08/1984</td>
+            <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn B', '079082333444', '15/08/1984', 'Nữ', '0988776655', 'Khu Phố 1', 'Kinh doanh', 'Cửa hàng PT', '12/12', 'Kế toán', '123 đường Lê Lai', 'Không', 'Gương mẫu')">Sửa</button></td>
+          </tr>
+          <tr>
+            <td><b>Con</b></td><td>Nguyễn Văn C</td><td>Đang cập nhật</td><td>14/12/2018</td>
+            <td style="text-align:center;"><button class="btn-action-reject" onclick="xoaThanhVienKhoiHo(this, 'Nguyễn Văn C')">Xóa</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button style="padding:9px 16px; background:#E2F7ED; color:var(--admin-emerald); border:1px solid #A2F3D1; border-radius:8px; font-weight:800; cursor:pointer;" onclick="moModalThemThanhVienVaoHo()">
+          ➕ Thêm Thành Viên Vào Hộ
+        </button>
+        <div style="display:flex; gap:10px;">
+          <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalXemSuaHo()">Đóng</button>
+          <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:800; cursor:pointer;" onclick="luuToanBoHoDan()">Lưu Toàn Bộ Hộ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL THÊM THÀNH VIÊN MỚI VÀO HỘ ================= -->
+  <div class="modal-backdrop" id="modalThemTVHo">
+    <div class="modal-window">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #EEE; padding-bottom:8px;">
+        <h3 style="color:var(--admin-jade); font-size:16px;">Thêm Thành Viên Mới Vào Hộ Gia Đình</h3>
+        <span style="font-size:22px; cursor:pointer; color:#888;" onclick="dongModalThemThanhVienVaoHo()">✕</span>
+      </div>
+
+      <div class="form-group"><label>Họ tên thành viên *</label><input type="text" id="tvName" placeholder="Nhập họ và tên..."></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Ngày sinh *</label><input type="date" id="tvDob"></div>
+        <div class="form-group"><label>Giới tính *</label><select id="tvGender"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Số CCCD *</label><input type="text" id="tvCCCD" placeholder="12 chữ số..."></div>
+        <div class="form-group"><label>Số điện thoại *</label><input type="tel" id="tvSDT" placeholder="Nhập SĐT..."></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Quan hệ với chủ hộ *</label>
+          <select id="tvQuanHe">
+            <option value="Con đẻ">Con đẻ</option><option value="Vợ">Vợ</option><option value="Chồng">Chồng</option><option value="Bố/Mẹ">Bố/Mẹ</option><option value="Khác">Khác</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Khu phố *</label><input type="text" id="tvKP" value="Khu Phố 1" readonly style="background:#F4F8F6;"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="tvNghe" placeholder="Nghề nghiệp..."></div>
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="tvNoiLam" placeholder="Đơn vị / Cơ quan..."></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Trình độ</label><input type="text" id="tvTrinhDo" placeholder="Đại học, 12/12..."></div>
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="tvChuyenMon" placeholder="Ngành nghề..."></div>
+      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="tvThuongTru" value="123 đường Lê Lai"></div>
+      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="tvTamTru" placeholder="Địa chỉ tạm trú (nếu có)..."></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="tvGhiChu" placeholder="Ghi chú thêm..."></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Dân tộc</label><input type="text" id="tvDanToc" value="Kinh"></div>
+        <div class="form-group"><label>Tôn giáo</label><input type="text" id="tvTonGiao" value="Không"></div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+        <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalThemThanhVienVaoHo()">Hủy</button>
+        <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:800; cursor:pointer;" onclick="thucHienThemThanhVienVaoHo()">Xác Nhận Thêm Vào Hộ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL XỬ LÝ & TRẢ KẾT QUẢ CHO DÂN ================= -->
+  <div class="modal-backdrop" id="modalXuLyHinh5">
+    <div class="modal-window">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #EEE; padding-bottom:8px;">
+        <h3 style="color:var(--admin-jade); font-size:16px;">Xử Lý & Trả Kết Quả Cho Dân</h3>
+        <span style="font-size:22px; cursor:pointer; color:#888;" onclick="dongModalXuLyHinh5()">✕</span>
+      </div>
+      
+      <div class="form-group">
+        <label>Phân công cán bộ phụ trách</label>
+        <select id="f5CanBo">
+          <option value="Ban Quản Trị Cơ Sở - Văn phòng Chỉ đạo">Ban Quản Trị Cơ Sở - Văn phòng Chỉ đạo</option>
+          <option value="Đội Trật Tự Đô Thị Phường">Đội Trật Tự Đô Thị Phường</option>
+          <option value="Công An Phường Phước Thắng">Công An Phường Phước Thắng</option>
+          <option value="Trưởng Ban Điều Hành Khu Phố">Trưởng Ban Điều Hành Khu Phố</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Trạng thái hồ sơ</label>
+        <select id="f5TrangThai">
+          <option value="Hoàn thành (Trả phiếu kết quả cho công dân)">Hoàn thành (Trả phiếu kết quả cho công dân)</option>
+          <option value="Đang thụ lý xác minh">Đang thụ lý xác minh</option>
+          <option value="Từ chối xử lý">Từ chối xử lý (Không thuộc thẩm quyền)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Nội dung giải quyết / Lời thông báo *</label>
+        <textarea id="f5NoiDung" rows="4" placeholder="Nhập văn bản trả lời chi tiết cho công dân..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Đính kèm Phiếu Trả Lời (PDF hoặc ảnh PNG/JPG)</label>
+        <input type="file" id="f5File" accept=".pdf, image/*">
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+        <button style="padding:9px 18px; border:1px solid #CCC; background:#FFF; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalXuLyHinh5()">Đóng</button>
+        <button style="padding:9px 20px; border:none; background:var(--admin-red); color:white; border-radius:8px; font-weight:800; cursor:pointer;" onclick="luuKetQuaHinh5()">Lưu Kết Quả</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL SỬA CƯ DÂN (ĐÃ XÓA CHỮ ĐỎ THEO HÌNH 2) ================= -->
+  <div class="modal-backdrop" id="modalSuaCuDan">
+    <div class="modal-window">
+      <h3 style="color:var(--admin-jade); margin-bottom:12px;">Cập Nhật Thông Tin Nhân Khẩu</h3>
+      <div class="form-group"><label>Họ và tên *</label><input type="text" id="editHoTen"></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Ngày sinh *</label><input type="text" id="editNgaySinh"></div>
+        <div class="form-group"><label>Giới tính *</label><select id="editGioiTinh"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Số CCCD (Tài khoản) *</label><input type="text" id="editCCCD"></div>
+        <div class="form-group"><label>Số điện thoại *</label><input type="tel" id="editSDT"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="editNgheNghiep"></div>
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="editNoiLamViec"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Trình độ</label><input type="text" id="editTrinhDo"></div>
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="editChuyenMon"></div>
+      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="editThuongTru"></div>
+      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="editTamTru"></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="editGhiChu"></div>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+        <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalSuaCuDan()">Hủy</button>
+        <!-- ĐÃ XÓA CHỮ ĐỎ KHOANH TRÒN CHUẨN XÁC THEO HÌNH 2 -->
+        <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:700; cursor:pointer;" onclick="luuSuaCuDan()">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL TẠO CUỘC HỌP ================= -->
+  <div class="modal-backdrop" id="modalTaoCuocHop">
+    <div class="modal-window">
+      <h3 style="color:var(--admin-jade); margin-bottom:12px;">Tạo Cuộc Họp Mới & Phát Hành Giấy Mời Cho Khu Phố</h3>
+      <div class="form-group"><label>Tên cuộc họp *</label><input type="text" id="newMeetTitle" placeholder="Nhập tên cuộc họp..."></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Khu phố trực thuộc *</label>
+          <select id="newMeetKP">
+            <option value="Khu Phố 1">Khu Phố 1</option><option value="Khu Phố 2">Khu Phố 2</option>
+            <option value="Khu Phố 3">Khu Phố 3</option><option value="Toàn Phường">-- Toàn Phường Phước Thắng --</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Ngày họp *</label><input type="date" id="newMeetDate"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Khung giờ *</label><input type="text" id="newMeetTime" placeholder="15:00 - 16:30"></div>
+        <div class="form-group"><label>Người chủ trì *</label><input type="text" id="newMeetHost" value="Trưởng Khu Phố"></div>
+      </div>
+      <div class="form-group"><label>Địa điểm tổ chức *</label><input type="text" id="newMeetLoc" placeholder="Văn phòng BĐH Khu phố..."></div>
+      <div class="form-group"><label>Nội dung chi tiết *</label><textarea id="newMeetDesc" rows="3" placeholder="Tóm tắt nội dung..."></textarea></div>
+      <div class="form-group"><label>Đính kèm giấy mời (PDF hoặc Ảnh PNG/JPG)</label><input type="file" id="newMeetFile" accept=".pdf, image/*"></div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalTaoCuocHop()">Hủy</button>
+        <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:700; cursor:pointer;" onclick="luuCuocHopMoi()">Lưu & Bắn Giấy Mời</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL TRẢ LỜI GÓP Ý ================= -->
+  <div class="modal-backdrop" id="modalTraLoiGopY">
+    <div class="modal-window">
+      <h3 style="color:var(--admin-jade); margin-bottom:12px;">Phản Hồi Ý Kiến Góp Ý Của Cư Dân</h3>
+      <div class="form-group"><label>Tiêu đề góp ý của dân</label><input type="text" id="repTitle" readonly style="background:#F5F7F6;"></div>
+      <div class="form-group">
+        <label>Cập nhật trạng thái xử lý *</label>
+        <select id="repStatus"><option value="Đã xử lý">Đã xử lý (Hoàn tất)</option><option value="Đang xử lý">Đang xử lý</option></select>
+      </div>
+      <div class="form-group"><label>Nội dung câu trả lời từ Khu phố / UBND *</label><textarea id="repContent" rows="4" placeholder="Nhập câu trả lời gửi về app của dân..."></textarea></div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalTraLoi()">Đóng</button>
+        <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:700; cursor:pointer;" onclick="luuTraLoiGopY()">Gửi Phản Hồi Cho Cư Dân</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL PHÂN QUYỀN ================= -->
+  <div class="modal-backdrop" id="modalTaoTaiKhoan">
+    <div class="modal-window">
+      <h3 id="accModalTitle" style="color:var(--admin-jade); margin-bottom:12px;">Tạo Tài Khoản & Phân Quyền</h3>
+      <div class="form-group"><label>Họ và tên *</label><input type="text" id="accName" placeholder="Nhập họ và tên..."></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Tài khoản (Số CCCD hoặc SĐT) *</label><input type="text" id="accId" placeholder="CCCD hoặc SĐT"></div>
+        <div class="form-group"><label>Mật khẩu khởi tạo *</label><input type="password" id="accPass" value="123456"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Vai trò hệ thống</label><input type="text" id="accRole" readonly style="background:#F5F7F6; font-weight:700;"></div>
+        <div class="form-group">
+          <label>Địa bàn khu phố *</label>
+          <select id="accKP"><option>Khu Phố 1</option><option>Khu Phố 2</option><option>Khu Phố 3</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Quyền hạn thực thi</label><textarea id="accPermDesc" rows="2" readonly style="background:#F5F7F6;"></textarea></div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalTaoTaiKhoan()">Hủy</button>
+        <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:700; cursor:pointer;" onclick="thucHienKichHoatTaiKhoan()">Kích Hoạt Tài Khoản</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbw7eQoaGuDBWNVwKTRPzdZIVuqCWXTTrDvTemto73WSliCZTFzWKpPvFF9q-4lKX2TX8g/exec";
+    // DỮ LIỆU ĐẦY ĐỦ 16 KHU PHỐ
+    const DATA_16_KHU_PHO = [
+      { name: "Khu Phố 1", dan: "4.399", ho: "1.138", dt: "491,35 ha", pct: "98.2%", color: "#00A86B" },
+      { name: "Khu Phố 2", dan: "5.071", ho: "1.312", dt: "41,85 ha", pct: "94.5%", color: "#28A745" },
+      { name: "Khu Phố 3", dan: "5.160", ho: "1.335", dt: "116,77 ha", pct: "91.0%", color: "#FFC107" },
+      { name: "Khu Phố 4", dan: "4.785", ho: "1.238", dt: "85,53 ha", pct: "89.5%", color: "#17A2B8" },
+      { name: "Khu Phố 5", dan: "5.164", ho: "1.336", dt: "95,00 ha", pct: "92.4%", color: "#00A86B" },
+      { name: "Khu Phố 6", dan: "4.604", ho: "1.191", dt: "86,07 ha", pct: "88.0%", color: "#6C757D" },
+      { name: "Khu Phố 7", dan: "5.311", ho: "1.374", dt: "55,43 ha", pct: "95.1%", color: "#00A86B" },
+      { name: "Khu Phố 8", dan: "5.172", ho: "1.338", dt: "83,05 ha", pct: "93.7%", color: "#28A745" },
+      { name: "Khu Phố 9", dan: "4.592", ho: "1.188", dt: "469,17 ha", pct: "90.2%", color: "#FFC107" },
+      { name: "Khu Phố 10", dan: "4.229", ho: "1.094", dt: "89,00 ha", pct: "87.6%", color: "#E67E22" },
+      { name: "Khu Phố 11", dan: "4.291", ho: "1.110", dt: "88,15 ha", pct: "88.8%", color: "#17A2B8" },
+      { name: "Khu Phố 12", dan: "5.122", ho: "1.325", dt: "79,05 ha", pct: "92.0%", color: "#00A86B" },
+      { name: "Khu Phố 13", dan: "4.356", ho: "1.127", dt: "422,61 ha", pct: "89.0%", color: "#6C757D" },
+      { name: "Khu Phố 14", dan: "4.329", ho: "1.120", dt: "368,98 ha", pct: "88.5%", color: "#17A2B8" },
+      { name: "Khu Phố 15", dan: "4.762", ho: "1.232", dt: "363,71 ha", pct: "91.5%", color: "#28A745" },
+      { name: "Khu Phố 16", dan: "3.603", ho: "932", dt: "1.791,67 ha", pct: "85.0%", color: "#DC3545" }
+    ];
+
+    function render16KhuPhoProgress() {
+      const box = document.getElementById('progress16KhuPhoBox');
+      let html = "";
+      DATA_16_KHU_PHO.forEach(kp => {
+        html += `
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-label">
+              <span><b>${kp.name}</b> (${kp.dan} người - ${kp.ho} hộ | Diện tích: <span style="color:#0078D4;">${kp.dt}</span>)</span>
+              <span style="font-weight:800; color:${kp.color}; font-size:13px;">${kp.pct}</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${kp.pct}; background:${kp.color};"></div>
+            </div>
+          </div>
+        `;
+      });
+      box.innerHTML = html;
+    }
+
+    // TAB SWITCH
+    function switchAdminTab(tabId, el) {
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      el.classList.add('active');
+    }
+
+    function selectTableRow(tr) {
+      const table = tr.closest('table');
+      table.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+      tr.classList.add('selected-row');
+    }
+
+    function filterCuDanTable() {
+      const selectedKP = document.getElementById('filterCuDanKP').value;
+      const rows = document.querySelectorAll('#tableCuDanBody tr');
+      rows.forEach(r => {
+        const kp = r.getAttribute('data-kp');
+        r.style.display = (selectedKP === "ALL" || kp === selectedKP) ? '' : 'none';
+      });
+    }
+
+    // MEDIA VIEWER
+    function xemFileViewer(fileName, type) {
+      const container = document.getElementById('mediaContainer');
+      document.getElementById('viewerTitle').innerText = "Trình Chiếu Chứng Cứ: " + fileName;
+      if (type === 'pdf') {
+        container.innerHTML = `<div style="padding:25px; text-align:center;"><div style="font-size:45px;">📄</div><p style="font-weight:800; color:#0078D4; margin-top:8px;">Tài liệu PDF: ${fileName}</p><p style="font-size:12px; color:#666;">Trình duyệt đang mở tài liệu PDF công vụ.</p></div>`;
+      } else if (type === 'img') {
+        container.innerHTML = `<div style="padding:15px; text-align:center;"><div style="font-size:50px;">🖼️</div><p style="font-weight:800; color:var(--admin-emerald); margin-top:8px;">Ảnh hiện trường: ${fileName}</p><p style="font-size:12px; color:#666;">Đã xác thực vị trí GPS gửi từ PWA.</p></div>`;
+      } else if (type === 'video') {
+        container.innerHTML = `<div style="padding:25px; text-align:center;"><div style="font-size:50px;">📹</div><p style="font-weight:800; color:var(--admin-red); margin-top:8px;">Clip Video Hiện Trường: ${fileName}</p><p style="font-size:12px; color:#666;">Video clip độ nét cao Full HD 1080p.</p></div>`;
+      }
+      document.getElementById('modalMediaViewer').style.display = 'flex';
+    }
+    function dongMediaViewer() { document.getElementById('modalMediaViewer').style.display = 'none'; }
+
+    // CUỘC HỌP
+    function moModalTaoCuocHop() { document.getElementById('modalTaoCuocHop').style.display = 'flex'; }
+    function dongModalTaoCuocHop() { document.getElementById('modalTaoCuocHop').style.display = 'none'; }
+    function luuCuocHopMoi() {
+      const title = document.getElementById('newMeetTitle').value.trim();
+      const kp = document.getElementById('newMeetKP').value;
+      const time = document.getElementById('newMeetTime').value.trim() || "15:00 - 16:30";
+      const date = document.getElementById('newMeetDate').value || "10/09/2026";
+      const host = document.getElementById('newMeetHost').value.trim() || "Trưởng Khu Phố";
+      const loc = document.getElementById('newMeetLoc').value.trim() || "Văn phòng Khu phố";
+      if (!title) return alert("Vui lòng nhập tên cuộc họp!");
+
+      const tbody = document.getElementById('cuocHopTableBody');
+      const newTr = document.createElement('tr');
+      newTr.onclick = function() { selectTableRow(this); };
+      newTr.innerHTML = `
+        <td><b>${title}</b></td><td><span style="color:var(--admin-emerald); font-weight:800;">${kp}</span></td>
+        <td>${time} | ${date}</td><td>${loc}</td><td>${host}</td>
+        <td><button class="btn-media-view" onclick="xemFileViewer('Giay_Moi_Hop.pdf', 'pdf')">📄 Xem PDF</button></td>
+        <td style="text-align:center;"><button class="btn-action-approve" onclick="alert('Đã gửi thông báo đến cư dân ${kp}!')">Bắn Tin Nhắn</button></td>
+      `;
+      tbody.prepend(newTr);
+      alert(`Đã phát hành thành công cuộc họp cho [${kp}]!`);
+      document.getElementById('newMeetTitle').value = "";
+      dongModalTaoCuocHop();
+    }
+
+    // TRẢ LỜI GÓP Ý
+    let currentGopYRow = null;
+    function moModalTraLoi(title, btn) {
+      currentGopYRow = btn.closest('tr');
+      document.getElementById('repTitle').value = title;
+      document.getElementById('modalTraLoiGopY').style.display = 'flex';
+    }
+    function dongModalTraLoi() { document.getElementById('modalTraLoiGopY').style.display = 'none'; }
+    function luuTraLoiGopY() {
+      const content = document.getElementById('repContent').value.trim();
+      const status = document.getElementById('repStatus').value;
+      if (!content) return alert("Vui lòng nhập nội dung câu trả lời!");
+      if (currentGopYRow) {
+        currentGopYRow.querySelector('.status-badge').innerText = status;
+        currentGopYRow.querySelector('.reply-text').innerText = content;
+      }
+      alert("Đã gửi phản hồi thành công về mục Thông Tin Khu Phố!");
+      dongModalTraLoi();
+    }
+
+    // XỬ LÝ PHẢN ÁNH HÌNH 5
+    function moModalXuLyHinh5(location) { document.getElementById('modalXuLyHinh5').style.display = 'flex'; }
+    function dongModalXuLyHinh5() { document.getElementById('modalXuLyHinh5').style.display = 'none'; }
+    function luuKetQuaHinh5() {
+      const content = document.getElementById('f5NoiDung').value.trim();
+      if (!content) return alert("Vui lòng nhập nội dung giải quyết!");
+      document.getElementById('statusPA01').innerText = "Đã xử lý";
+      document.getElementById('statusPA01').style.background = "#E2F7ED";
+      document.getElementById('statusPA01').style.color = "#00A86B";
+      alert("Lưu kết quả thành công! Thông báo kèm phiếu giải quyết (PDF/ảnh) đã được gửi trực tiếp đến mục Thông Báo.");
+      dongModalXuLyHinh5();
+    }
+
+    // SỔ HỘ GIA ĐÌNH VÀ THÀNH VIÊN
+    function moXemSuaTongTheHo(maHo) {
+      document.getElementById('hoMaHo').value = maHo;
+      document.getElementById('modalXemSuaHo').style.display = 'flex';
+    }
+    function dongModalXemSuaHo() { document.getElementById('modalXemSuaHo').style.display = 'none'; }
+    function luuToanBoHoDan() {
+      alert("Đã lưu và đồng bộ toàn bộ thông tin sổ hộ gia đình!");
+      dongModalXemSuaHo();
+    }
+    function xoaThanhVienKhoiHo(btn, name) {
+      if (confirm(`Bạn có chắc chắn muốn xóa thành viên [${name}] khỏi hộ gia đình này?`)) {
+        btn.closest('tr').remove();
+        alert(`Đã xóa thành viên ${name}!`);
+      }
+    }
+
+    // THÊM THÀNH VIÊN VÀO HỘ
+    function moModalThemThanhVienVaoHo() { document.getElementById('modalThemTVHo').style.display = 'flex'; }
+    function dongModalThemThanhVienVaoHo() { document.getElementById('modalThemTVHo').style.display = 'none'; }
+    function thucHienThemThanhVienVaoHo() {
+      const name = document.getElementById('tvName').value.trim();
+      const qh = document.getElementById('tvQuanHe').value;
+      const cccd = document.getElementById('tvCCCD').value.trim() || "Chưa có";
+      const dob = document.getElementById('tvDob').value || "01/01/2000";
+      if (!name) return alert("Vui lòng nhập họ tên thành viên!");
+
+      const tbody = document.getElementById('hoThanhVienBody');
+      const newTr = document.createElement('tr');
+      newTr.innerHTML = `
+        <td><b>${qh}</b></td><td>${name}</td><td>${cccd}</td><td>${dob}</td>
+        <td style="text-align:center;"><button class="btn-action-reject" onclick="xoaThanhVienKhoiHo(this, '${name}')">Xóa</button></td>
+      `;
+      tbody.appendChild(newTr);
+      alert(`Đã thêm thành viên [${name}] vào sổ hộ thành công!`);
+      dongModalThemThanhVienVaoHo();
+    }
+
+    // SỬA CƯ DÂN (NÚT LƯU ĐÃ ĐƯỢC TINH GỌN THEO HÌNH 2)
+    function moSuaCuDan(name, cccd, dob, gender, sdt, kp, nghe, noiLam, trinhDo, chuyenMon, thuongTru, tamTru, ghiChu) {
+      document.getElementById('editHoTen').value = name;
+      document.getElementById('editCCCD').value = cccd;
+      document.getElementById('editNgaySinh').value = dob;
+      document.getElementById('editGioiTinh').value = gender;
+      document.getElementById('editSDT').value = sdt;
+      document.getElementById('editNgheNghiep').value = nghe;
+      document.getElementById('editNoiLamViec').value = noiLam;
+      document.getElementById('editTrinhDo').value = trinhDo;
+      document.getElementById('editChuyenMon').value = chuyenMon;
+      document.getElementById('editThuongTru').value = thuongTru;
+      document.getElementById('editTamTru').value = tamTru;
+      document.getElementById('editGhiChu').value = ghiChu;
+      document.getElementById('modalSuaCuDan').style.display = 'flex';
+    }
+    function dongModalSuaCuDan() { document.getElementById('modalSuaCuDan').style.display = 'none'; }
+    function luuSuaCuDan() {
+      alert("Đã cập nhật thông tin nhân khẩu thành công!");
+      dongModalSuaCuDan();
+    }
+
+    // TẠO TÀI KHOẢN
+    function moModalTaoTaiKhoan(type) {
+      if (type === 'CAN_BO') {
+        document.getElementById('accModalTitle').innerText = "Cấp Tài Khoản Ban Điều Hành Khu Phố";
+        document.getElementById('accRole').value = "Cán bộ Khu phố";
+        document.getElementById('accPermDesc').value = "Tạo cuộc họp, Duyệt cư dân, Trả lời góp ý trong khu phố phụ trách.";
+      } else {
+        document.getElementById('accModalTitle').innerText = "Tạo / Phê Duyệt Tài Khoản Cư Dân";
+        document.getElementById('accRole').value = "Cư dân";
+        document.getElementById('accPermDesc').value = "Chỉ xem cá nhân/hộ mình, nhận thông báo, nhận kết quả phản ánh.";
+      }
+      document.getElementById('modalTaoTaiKhoan').style.display = 'flex';
+    }
+    function dongModalTaoTaiKhoan() { document.getElementById('modalTaoTaiKhoan').style.display = 'none'; }
+    function thucHienKichHoatTaiKhoan() {
+      const name = document.getElementById('accName').value.trim();
+      if (!name) return alert("Vui lòng nhập họ tên!");
+      alert(`Đã kích hoạt và phân quyền tài khoản cho [${name}] thành công!`);
+      dongModalTaoTaiKhoan();
+    }
+
+    function pheDuyetHoSo(btn, name) {
+      if(confirm(`Xác nhận phê duyệt tài khoản và nhân khẩu cho: ${name}?`)) {
+        btn.closest('tr').style.opacity = '0.35';
+        btn.parentElement.innerHTML = `<span style="color:var(--admin-emerald); font-weight:800;">✓ Đã Duyệt</span>`;
+        alert(`Đã phê duyệt thành công! Thông báo xác nhận thành viên đã được gửi đi.`);
+      }
+    }
+    function tuChoiHoSo(btn) {
+      const reason = prompt("Nhập lý do từ chối:", "Sai lệch thông tin CCCD hoặc địa chỉ");
+      if(reason) { btn.closest('tr').remove(); alert("Đã từ chối và phản hồi đến công dân."); }
+    }
+
+    // DUMMY EXCEL
+    function taiFileMauExcel() { alert("Đang tải file mẫu Mau_Nhap_Lieu_Dan_Cu_PhuocThang.csv..."); }
+    function xuatFileExcelTheoLoc() { alert("Đã xuất file thông tin dữ liệu Excel thành công!"); }
+    function moModalImport() { alert("Mở trình nạp file Excel dân cư chuẩn..."); }
+
+    window.onload = function() { render16KhuPhoProgress(); };
+  </script>
+</body>
+</html>

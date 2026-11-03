@@ -39,7 +39,7 @@
     /* WORKSPACE */
     .workspace { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     .topbar { background: #FFFFFF; height: 68px; border-bottom: 1.5px solid #D6E2DD; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; flex-shrink: 0; }
-    .topbar-title { font-size: 16.5px; font-weight: 800; color: var(--admin-jade); letter-spacing: 0.3px; }
+    .topbar-title { font-size: 16.5px; font-weight: 800; color: var(--admin-jade); letter-spacing: 0.3px; display: flex; align-items: center; gap: 12px; }
     .admin-profile { display: flex; align-items: center; gap: 12px; }
     .admin-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--admin-jade); color: var(--admin-gold); display: flex; align-items: center; justify-content: center; font-weight: 900; border: 2px solid var(--admin-gold); }
 
@@ -70,6 +70,7 @@
     .btn-excel-export { background: #1D6F42; color: white; }
     .btn-excel-import { background: #0078D4; color: white; }
     .btn-excel-template { background: #5C6B73; color: white; }
+    .btn-refresh { background: #E2F7ED; color: var(--admin-emerald); border: 1.5px solid var(--admin-emerald); }
 
     /* TABLE */
     .panel-table { background: #FFF; border-radius: 14px; border: 1px solid #DCE6E2; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 20px; }
@@ -107,11 +108,11 @@
     </div>
     <ul class="nav-list">
       <li class="nav-item active" onclick="switchAdminTab('tabDashboard', this)"><span>📊</span> Bảng Điều Hành Tổng Thể</li>
-      <li class="nav-item" onclick="switchAdminTab('tabCuDan', this)"><span>👥</span> Quản Lý Cư Dân & Nhân Khẩu <span class="nav-badge">28</span></li>
+      <li class="nav-item" onclick="switchAdminTab('tabCuDan', this)"><span>👥</span> Quản Lý Cư Dân & Nhân Khẩu <span class="nav-badge" id="badgeCuDan">0</span></li>
       <li class="nav-item" onclick="switchAdminTab('tabHoDan', this)"><span>🏠</span> Quản Lý Hộ Gia Đình</li>
       <li class="nav-item" onclick="switchAdminTab('tabCuocHop', this)"><span>📅</span> Quản Lý Cuộc Họp</li>
-      <li class="nav-item" onclick="switchAdminTab('tabGopY', this)"><span>💬</span> Ý Kiến & Góp Ý Cơ Sở <span class="nav-badge" style="background:#E67E22;">14</span></li>
-      <li class="nav-item" onclick="switchAdminTab('tabAnNinh', this)"><span>⭐</span> Phản Ánh An Ninh Đô Thị <span class="nav-badge">05</span></li>
+      <li class="nav-item" onclick="switchAdminTab('tabGopY', this)"><span>💬</span> Ý Kiến & Góp Ý Cơ Sở <span class="nav-badge" style="background:#E67E22;" id="badgeGopY">0</span></li>
+      <li class="nav-item" onclick="switchAdminTab('tabAnNinh', this)"><span>⭐</span> Phản Ánh An Ninh Đô Thị <span class="nav-badge" id="badgeAnNinh">0</span></li>
       <li class="nav-item" onclick="switchAdminTab('tabPhanQuyen', this)"><span>🔑</span> Phân Quyền Khu Phố & Cư Dân</li>
     </ul>
   </aside>
@@ -119,11 +120,14 @@
   <!-- ================= WORKSPACE ================= -->
   <main class="workspace">
     <header class="topbar">
-      <div class="topbar-title">HỆ THỐNG ĐIỀU HÀNH & GIÁM SÁT DÂN CƯ SỐ - PHƯỚC THẮNG</div>
+      <div class="topbar-title">
+        <span>HỆ THỐNG ĐIỀU HÀNH & GIÁM SÁT DÂN CƯ SỐ - PHƯỚC THẮNG</span>
+        <button class="btn-tool btn-refresh" onclick="taiDuLieuTuServer()">🔄 Update dữ liệu</button>
+      </div>
       <div class="admin-profile">
         <div style="text-align:right;">
           <div style="font-weight:800; font-size:13.5px;">Ban Chỉ Đạo Chuyển Đổi Số</div>
-          <div style="font-size:11px; color:#5B7369;">Cổng Quản Trị Trực Tiếp</div>
+          <div style="font-size:11px; color:#5B7369;" id="serverStatusText">🟢 Đã kết nối Máy chủ Google</div>
         </div>
         <div class="admin-avatar">PT</div>
       </div>
@@ -135,15 +139,15 @@
       <div class="view-section active" id="tabDashboard">
         <section class="stats-row">
           <div class="stat-card">
-            <div class="stat-info"><h4>Tổng Nhân Khẩu</h4><div>68.420</div></div>
+            <div class="stat-info"><h4>Tổng Nhân Khẩu</h4><div id="statTongDan">0</div></div>
             <div class="stat-icon" style="background:#E2F7ED; color:var(--admin-emerald);">👥</div>
           </div>
           <div class="stat-card">
-            <div class="stat-info"><h4>Tổng Hộ Gia Đình</h4><div>18.825</div></div>
+            <div class="stat-info"><h4>Tổng Hộ Gia Đình</h4><div id="statTongHo">0</div></div>
             <div class="stat-icon" style="background:#FFF6E5; color:#E67E22;">🏠</div>
           </div>
           <div class="stat-card">
-            <div class="stat-info"><h4>Hồ Sơ Chờ Phê Duyệt</h4><div style="color:var(--admin-red);">28</div></div>
+            <div class="stat-info"><h4>Hồ Sơ Chờ Phê Duyệt</h4><div style="color:var(--admin-red);" id="statChoDuyet">0</div></div>
             <div class="stat-icon" style="background:#FDECEE; color:var(--admin-red);">⏳</div>
           </div>
           <div class="stat-card">
@@ -152,7 +156,7 @@
           </div>
         </section>
 
-        <!-- BIỂU ĐỒ 16 KHU PHỐ KÈM DIỆN TÍCH (ĐÃ XÓA CHỮ CẬP NHẬT ĐỒNG BỘ) -->
+        <!-- BIỂU ĐỒ 16 KHU PHỐ KÈM DIỆN TÍCH -->
         <section class="chart-panel">
           <div class="chart-header">
             <span>TIẾN ĐỘ THU THẬP VÀ ĐỊNH DANH DÂN CƯ SỐ 16 KHU PHỐ</span>
@@ -172,28 +176,18 @@
                 <th>Địa Chỉ Thường Trú</th><th>Nghề Nghiệp / Trình Độ</th><th>Trạng Thái</th><th style="text-align:center;">Thao Tác Duyệt</th>
               </tr>
             </thead>
-            <tbody>
-              <tr onclick="selectTableRow(this)">
-                <td><b>Nguyễn Văn A</b></td><td>079080309999</td><td>0123456786</td>
-                <td><span style="color:var(--admin-emerald); font-weight:700;">Khu Phố 1</span></td>
-                <td>123 đường Lê Lai</td><td>Kỹ sư xây dựng / Đại học</td>
-                <td><span style="background:#FFF4E5; color:#E67E22; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">Đăng ký mới</span></td>
-                <td style="text-align:center;">
-                  <button class="btn-action-approve" onclick="pheDuyetHoSo(this, 'Nguyễn Văn A')">Phê Duyệt</button>
-                  <button class="btn-action-reject" onclick="tuChoiHoSo(this)">Từ Chối</button>
-                </td>
-              </tr>
+            <tbody id="tableChoDuyetBody">
+              <tr><td colspan="8" style="text-align:center; color:#888;">Đang nạp danh sách chờ duyệt từ máy chủ...</td></tr>
             </tbody>
           </table>
         </section>
       </div>
 
-      <!-- ================= TAB 2: QUẢN LÝ CƯ DÂN (ĐẦY ĐỦ 16 KHU PHỐ - HÌNH 1) ================= -->
+      <!-- ================= TAB 2: QUẢN LÝ CƯ DÂN ================= -->
       <div class="view-section" id="tabCuDan">
         <section class="toolbar-card">
           <div class="tool-group">
             <label style="font-size:13px; font-weight:800; color:var(--admin-jade);">Lọc Khu Phố:</label>
-            <!-- TÍCH HỢP ĐẦY ĐỦ 16 KHU PHỐ CHUẨN XÁC THEO HÌNH 1 -->
             <select class="select-kp" id="filterCuDanKP" onchange="filterCuDanTable()">
               <option value="ALL">-- Tất cả 16 Khu phố toàn Phường --</option>
               <option value="Khu Phố 1">Khu Phố 1</option><option value="Khu Phố 2">Khu Phố 2</option>
@@ -207,9 +201,9 @@
             </select>
           </div>
           <div class="tool-group">
-            <button class="btn-tool btn-excel-template" onclick="taiFileMauExcel()">📥 Tải File Mẫu Excel</button>
-            <button class="btn-tool btn-excel-import" onclick="moModalImport()">📂 Import File Chuẩn Dân Cư</button>
-            <button class="btn-tool btn-excel-export" onclick="xuatFileExcelTheoLoc()">📊 Tải File Thông Tin</button>
+            <button class="btn-tool btn-excel-template" onclick="taiFileMauExcel()">📥 Tải File Mẫu CSV</button>
+            <button class="btn-tool btn-excel-import" onclick="moModalImport()">📂 Import Dữ Liệu</button>
+            <button class="btn-tool btn-excel-export" onclick="xuatFileExcelTheoLoc()">📊 Xuất File Dân Cư</button>
           </div>
         </section>
 
@@ -225,18 +219,7 @@
               </tr>
             </thead>
             <tbody id="tableCuDanBody">
-              <tr data-kp="Khu Phố 1" onclick="selectTableRow(this)">
-                <td><b>Nguyễn Văn A</b></td><td>20/05/1980 | Nam</td><td>079080309999</td><td>0123456786</td>
-                <td><span style="color:var(--admin-emerald); font-weight:700;">Khu Phố 1</span></td>
-                <td>Kỹ sư | Cty Xây Dựng 1</td><td>Đại học | Kỹ thuật CT</td><td>Chấp hành tốt</td>
-                <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn A', '079080309999', '20/05/1980', 'Nam', '0123456786', 'Khu Phố 1', 'Kỹ sư xây dựng', 'Cty Xây Dựng 1', 'Đại học', 'Kỹ thuật CT', '123 đường Lê Lai', 'Không', 'Chấp hành tốt', 'Kinh', 'Không')">Chỉnh Sửa</button></td>
-              </tr>
-              <tr data-kp="Khu Phố 1" onclick="selectTableRow(this)">
-                <td><b>Nguyễn Văn B</b> (Vợ)</td><td>15/08/1984 | Nữ</td><td>079082333444</td><td>0988776655</td>
-                <td><span style="color:var(--admin-emerald); font-weight:700;">Khu Phố 1</span></td>
-                <td>Kinh doanh | Cửa hàng PT</td><td>12/12 | Kế toán</td><td>Gia đình gương mẫu</td>
-                <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn B', '079082333444', '15/08/1984', 'Nữ', '0988776655', 'Khu Phố 1', 'Kinh doanh', 'Cửa hàng PT', '12/12', 'Kế toán', '123 đường Lê Lai', 'Không', 'Gia đình gương mẫu', 'Kinh', 'Không')">Chỉnh Sửa</button></td>
-              </tr>
+              <tr><td colspan="9" style="text-align:center; color:#888;">Đang nạp danh sách nhân khẩu...</td></tr>
             </tbody>
           </table>
         </section>
@@ -254,14 +237,8 @@
                 <th>Mã Hộ</th><th>Chủ Hộ</th><th>Khu Phố</th><th>Địa Chỉ Thường Trú</th><th>Số Nhân Khẩu</th><th>Diện Chính Sách</th><th>Ghi Chú Hộ</th><th style="text-align:center;">Hành Động</th>
               </tr>
             </thead>
-            <tbody>
-              <tr onclick="selectTableRow(this)">
-                <td><b>HO-079080309999</b></td><td><b>Nguyễn Văn A</b></td><td>Khu Phố 1</td><td>123 đường Lê Lai</td>
-                <td><span style="font-weight:800; color:var(--admin-emerald);">03 người</span></td><td>Không</td><td>Hộ gia đình văn hóa</td>
-                <td style="text-align:center;">
-                  <button class="btn-action-edit" onclick="moXemSuaTongTheHo('HO-079080309999')">Xem & Chỉnh Sửa Hộ</button>
-                </td>
-              </tr>
+            <tbody id="tableHoDanBody">
+              <tr><td colspan="8" style="text-align:center; color:#888;">Đang nạp danh sách hộ gia đình...</td></tr>
             </tbody>
           </table>
         </section>
@@ -281,13 +258,7 @@
               <tr><th>Tên Cuộc Họp</th><th>Địa Bàn</th><th>Thời Gian Họp</th><th>Địa Điểm</th><th>Chủ Trì</th><th>Giấy Mời Đính Kèm</th><th style="text-align:center;">Thao Tác</th></tr>
             </thead>
             <tbody id="cuocHopTableBody">
-              <tr onclick="selectTableRow(this)">
-                <td><b>Họp triển khai công tác số hóa dân cư 2026</b></td><td><span style="color:var(--admin-emerald); font-weight:800;">Khu Phố 1</span></td>
-                <td>15:00 - 16:30 | 04/09/2026</td><td>Văn phòng BĐH Khu Phố 1</td><td>Trưởng Khu Phố 1</td>
-                <td><button class="btn-media-view" onclick="xemFileViewer('Giay_Moi_KP1.pdf', 'pdf')">📄 Xem PDF</button></td>
-                <!-- ĐÃ XÓA CHỮ "PWA CỦA" CHUẨN XÁC THEO HÌNH 3 -->
-                <td style="text-align:center;"><button class="btn-action-approve" onclick="alert('Đã gửi thông báo đến cư dân Khu Phố 1!')">Bắn Tin Nhắn</button></td>
-              </tr>
+              <tr><td colspan="7" style="text-align:center; color:#888;">Đang nạp danh sách cuộc họp...</td></tr>
             </tbody>
           </table>
         </section>
@@ -304,16 +275,7 @@
               <tr><th>Người Gửi</th><th>Khu Phố</th><th>Tiêu Đề & Nội Dung</th><th>Tệp Đính Kèm</th><th>Trạng Thái</th><th>Phản Hồi Khu Phố</th><th style="text-align:center;">Hành Động</th></tr>
             </thead>
             <tbody id="gopYTableBody">
-              <tr onclick="selectTableRow(this)">
-                <td><b>Nguyễn Văn A</b><br><span style="font-size:11px;">079080309999</span></td><td>Khu Phố 1</td>
-                <td><b>Sửa chữa đèn đường ngõ 123 Lê Lai</b><br><span style="font-size:12px; color:#555;">Đèn chiếu sáng chập chờn 3 ngày.</span></td>
-                <td><button class="btn-media-view" onclick="xemFileViewer('Hinh_anh_hientruong.jpg', 'img')">🖼️ Xem Ảnh</button></td>
-                <td><span class="status-badge" style="background:#E2F7ED; color:var(--admin-emerald); padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">Đã xử lý</span></td>
-                <td class="reply-text" style="font-size:12px; color:#004D40;">Đã thay bóng LED mới sáng 03/09.</td>
-                <td style="text-align:center;">
-                  <button class="btn-action-edit" onclick="moModalTraLoi('Sửa chữa đèn đường ngõ 123 Lê Lai', this)">Trả Lời / Sửa</button>
-                </td>
-              </tr>
+              <tr><td colspan="7" style="text-align:center; color:#888;">Đang nạp danh sách ý kiến góp ý...</td></tr>
             </tbody>
           </table>
         </section>
@@ -327,21 +289,10 @@
         <section class="panel-table">
           <table>
             <thead>
-              <tr><th>Người Phản Ánh</th><th>Địa Chỉ Sự Việc</th><th>Nội Dung Chi Tiết</th><th>Chứng Cứ (Ảnh/Video/PDF)</th><th>Trạng Thái</th><th style="text-align:center;">Xử Lý Khẩn Cấp</th></tr>
+              <tr><th>Mã PA</th><th>Người Phản Ánh</th><th>Địa Chỉ Sự Việc</th><th>Nội Dung Chi Tiết</th><th>Chứng Cứ</th><th>Trạng Thái</th><th style="text-align:center;">Xử Lý Khẩn Cấp</th></tr>
             </thead>
-            <tbody>
-              <tr id="rowPA01" onclick="selectTableRow(this)">
-                <td><b>Nguyễn Văn A</b><br><span style="font-size:11px;">0123456786</span></td>
-                <td>Đầu hẻm 45 Lê Lai, Khu Phố 1</td>
-                <td>Tập kết vật liệu lấn chiếm lối đi chung, gây cản trở giao thông.</td>
-                <td>
-                  <button class="btn-media-view" style="color:var(--admin-red); border-color:#F5C2C7;" onclick="xemFileViewer('Video_hientruong.mp4', 'video')">📹 Xem Video</button>
-                </td>
-                <td><span id="statusPA01" style="background:#FFF4E5; color:#E67E22; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">Mới tiếp nhận</span></td>
-                <td style="text-align:center;">
-                  <button class="btn-action-reject" style="background:#A30D11;" onclick="moModalXuLyHinh5('Đầu hẻm 45 Lê Lai, Khu Phố 1')">Chuyển Xử Lý & Trả Kết Quả</button>
-                </td>
-              </tr>
+            <tbody id="anNinhTableBody">
+              <tr><td colspan="7" style="text-align:center; color:#888;">Đang nạp danh sách phản ánh an ninh...</td></tr>
             </tbody>
           </table>
         </section>
@@ -359,19 +310,10 @@
         <section class="panel-table">
           <table>
             <thead>
-              <tr><th>Họ Tên</th><th>Tài Khoản (CCCD/SĐT)</th><th>Vai Trò</th><th>Địa Bàn</th><th>Quyền Hạn Gán</th><th style="text-align:center;">Thao Tác</th></tr>
+              <tr><th>Họ Tên</th><th>Tài Khoản (CCCD/SĐT)</th><th>Vai Trò</th><th>Địa Bàn</th><th>Trạng Thái</th><th style="text-align:center;">Thao Tác</th></tr>
             </thead>
-            <tbody>
-              <tr onclick="selectTableRow(this)">
-                <td><b>Lê Văn Hùng</b></td><td>0918112233</td><td><span style="background:#E2F7ED; color:var(--admin-emerald); padding:3px 8px; border-radius:5px; font-weight:800; font-size:11px;">Cán bộ Khu phố</span></td>
-                <td><span style="color:var(--admin-emerald); font-weight:800;">Khu Phố 1</span></td><td>Tạo cuộc họp, Duyệt cư dân, Trả lời góp ý</td>
-                <td style="text-align:center;"><button class="btn-action-edit" onclick="alert('Đã mở cấu hình quyền cán bộ!')">Cấu Hình</button></td>
-              </tr>
-              <tr onclick="selectTableRow(this)">
-                <td><b>Nguyễn Văn A</b></td><td>079080309999</td><td><span style="background:#E8F0FE; color:#1877F2; padding:3px 8px; border-radius:5px; font-weight:800; font-size:11px;">Cư dân</span></td>
-                <td>Khu Phố 1</td><td>Chỉ xem cá nhân/hộ mình, nhận thông báo, nhận kết quả phản ánh</td>
-                <td style="text-align:center;"><button class="btn-action-approve" onclick="alert('Tài khoản đã được kích hoạt!')">✓ Đã Duyệt</button></td>
-              </tr>
+            <tbody id="tablePhanQuyenBody">
+              <tr><td colspan="6" style="text-align:center; color:#888;">Đang nạp danh sách tài khoản...</td></tr>
             </tbody>
           </table>
         </section>
@@ -380,7 +322,7 @@
     </div>
   </main>
 
-  <!-- ================= MODAL XEM TRÌNH CHIẾU MEDIA ================= -->
+  <!-- ================= MODAL MEDIA ================= -->
   <div class="modal-backdrop" id="modalMediaViewer">
     <div class="modal-window" style="width:700px; text-align:center;">
       <h3 id="viewerTitle" style="color:var(--admin-jade); margin-bottom:15px;">Xem Tệp Chứng Cứ Đính Kèm</h3>
@@ -389,7 +331,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL XEM & SỬA TỔNG THỂ HỘ DÂN ================= -->
+  <!-- ================= MODAL XEM & SỬA SỔ HỘ DÂN ================= -->
   <div class="modal-backdrop" id="modalXemSuaHo">
     <div class="modal-window" style="width:780px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #EEE; padding-bottom:8px;">
@@ -399,52 +341,25 @@
 
       <div class="form-grid">
         <div class="form-group"><label>Mã Hộ</label><input type="text" id="hoMaHo" readonly style="background:#F4F8F6;"></div>
-        <div class="form-group"><label>Chủ hộ *</label><input type="text" id="hoChuHo" value="Nguyễn Văn A"></div>
+        <div class="form-group"><label>Chủ hộ *</label><input type="text" id="hoChuHo"></div>
       </div>
       <div class="form-grid">
-        <div class="form-group"><label>Ngày sinh</label><input type="text" id="hoNgaySinh" value="20/05/1980"></div>
-        <div class="form-group"><label>Giới tính</label><select id="hoGioiTinh"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+        <div class="form-group"><label>Số CCCD Chủ hộ</label><input type="text" id="hoCCCD" readonly style="background:#F4F8F6;"></div>
+        <div class="form-group"><label>Số điện thoại</label><input type="text" id="hoSDT"></div>
       </div>
       <div class="form-grid">
-        <div class="form-group"><label>Số CCCD</label><input type="text" id="hoCCCD" value="079080309999"></div>
-        <div class="form-group"><label>Số điện thoại</label><input type="text" id="hoSDT" value="0123456786"></div>
+        <div class="form-group"><label>Khu phố</label><input type="text" id="hoKhuPho" readonly style="background:#F4F8F6;"></div>
+        <div class="form-group"><label>Diện chính sách</label><input type="text" id="hoChinhSach"></div>
       </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Khu phố</label><input type="text" id="hoKhuPho" value="Khu Phố 1" readonly style="background:#F4F8F6;"></div>
-        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="hoNgheNghiep" value="Kỹ sư xây dựng"></div>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="hoNoiLamViec" value="Công ty CP Xây Dựng Số 1"></div>
-        <div class="form-group"><label>Trình độ</label><input type="text" id="hoTrinhDo" value="Đại học"></div>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Chuyên môn</label><input type="text" id="hoChuyenMon" value="Kỹ thuật công trình"></div>
-        <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="hoDiaChi" value="123 đường Lê Lai"></div>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="hoTamTru" value="Không"></div>
-        <div class="form-group"><label>Ghi chú</label><input type="text" id="hoGhiChu" value="Gia đình chấp hành tốt chủ trương chính sách"></div>
-      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="hoDiaChi"></div>
+      <div class="form-group"><label>Ghi chú hộ</label><input type="text" id="hoGhiChu"></div>
       
-      <h4 style="font-size:14px; color:var(--admin-jade); margin:14px 0 8px 0;">Danh Sách Nhân Khẩu Trong Hộ (03 thành viên)</h4>
+      <h4 style="font-size:14px; color:var(--admin-jade); margin:14px 0 8px 0;">Danh Sách Nhân Khẩu Trong Hộ</h4>
       <table style="margin-bottom:15px;">
         <thead>
-          <tr><th>Quan hệ</th><th>Họ và tên</th><th>Số CCCD</th><th>Ngày sinh</th><th style="text-align:center;">Thao tác</th></tr>
+          <tr><th>Quan hệ</th><th>Họ và tên</th><th>Số CCCD</th><th>Ngày sinh</th><th>Điện thoại</th></tr>
         </thead>
-        <tbody id="hoThanhVienBody">
-          <tr>
-            <td><b>Chủ hộ</b></td><td>Nguyễn Văn A</td><td>079080309999</td><td>20/05/1980</td>
-            <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn A', '079080309999', '20/05/1980', 'Nam', '0123456786', 'Khu Phố 1', 'Kỹ sư', 'Cty Xây Dựng 1', 'Đại học', 'Kỹ thuật CT', '123 đường Lê Lai', 'Không', 'Chấp hành tốt')">Sửa</button></td>
-          </tr>
-          <tr>
-            <td><b>Vợ</b></td><td>Nguyễn Văn B</td><td>079082333444</td><td>15/08/1984</td>
-            <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('Nguyễn Văn B', '079082333444', '15/08/1984', 'Nữ', '0988776655', 'Khu Phố 1', 'Kinh doanh', 'Cửa hàng PT', '12/12', 'Kế toán', '123 đường Lê Lai', 'Không', 'Gương mẫu')">Sửa</button></td>
-          </tr>
-          <tr>
-            <td><b>Con</b></td><td>Nguyễn Văn C</td><td>Đang cập nhật</td><td>14/12/2018</td>
-            <td style="text-align:center;"><button class="btn-action-reject" onclick="xoaThanhVienKhoiHo(this, 'Nguyễn Văn C')">Xóa</button></td>
-          </tr>
-        </tbody>
+        <tbody id="hoThanhVienBody"></tbody>
       </table>
 
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -453,13 +368,13 @@
         </button>
         <div style="display:flex; gap:10px;">
           <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalXemSuaHo()">Đóng</button>
-          <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:800; cursor:pointer;" onclick="luuToanBoHoDan()">Lưu Toàn Bộ Hộ</button>
+          <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:800; cursor:pointer;" onclick="luuToanBoHoDan()">Lưu Cập Nhật</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL THÊM THÀNH VIÊN MỚI VÀO HỘ ================= -->
+  <!-- ================= MODAL THÊM THÀNH VIÊN VÀO HỘ ================= -->
   <div class="modal-backdrop" id="modalThemTVHo">
     <div class="modal-window">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #EEE; padding-bottom:8px;">
@@ -474,32 +389,28 @@
       </div>
       <div class="form-grid">
         <div class="form-group"><label>Số CCCD *</label><input type="text" id="tvCCCD" placeholder="12 chữ số..."></div>
-        <div class="form-group"><label>Số điện thoại *</label><input type="tel" id="tvSDT" placeholder="Nhập SĐT..."></div>
+        <div class="form-group"><label>Số điện thoại</label><input type="tel" id="tvSDT" placeholder="Nhập SĐT..."></div>
       </div>
       <div class="form-grid">
         <div class="form-group">
           <label>Quan hệ với chủ hộ *</label>
           <select id="tvQuanHe">
-            <option value="Con đẻ">Con đẻ</option><option value="Vợ">Vợ</option><option value="Chồng">Chồng</option><option value="Bố/Mẹ">Bố/Mẹ</option><option value="Khác">Khác</option>
+            <option value="Vợ">Vợ</option><option value="Chồng">Chồng</option><option value="Con đẻ">Con đẻ</option><option value="Bố/Mẹ">Bố/Mẹ</option><option value="Khác">Khác</option>
           </select>
         </div>
-        <div class="form-group"><label>Khu phố *</label><input type="text" id="tvKP" value="Khu Phố 1" readonly style="background:#F4F8F6;"></div>
+        <div class="form-group"><label>Khu phố *</label><input type="text" id="tvKP" readonly style="background:#F4F8F6;"></div>
       </div>
       <div class="form-grid">
-        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="tvNghe" placeholder="Nghề nghiệp..."></div>
-        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="tvNoiLam" placeholder="Đơn vị / Cơ quan..."></div>
+        <div class="form-group"><label>Nghề nghiệp</label><input type="text" id="tvNghe"></div>
+        <div class="form-group"><label>Nơi làm việc</label><input type="text" id="tvNoiLam"></div>
       </div>
       <div class="form-grid">
-        <div class="form-group"><label>Trình độ</label><input type="text" id="tvTrinhDo" placeholder="Đại học, 12/12..."></div>
-        <div class="form-group"><label>Chuyên môn</label><input type="text" id="tvChuyenMon" placeholder="Ngành nghề..."></div>
+        <div class="form-group"><label>Trình độ</label><input type="text" id="tvTrinhDo"></div>
+        <div class="form-group"><label>Chuyên môn</label><input type="text" id="tvChuyenMon"></div>
       </div>
-      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="tvThuongTru" value="123 đường Lê Lai"></div>
-      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="tvTamTru" placeholder="Địa chỉ tạm trú (nếu có)..."></div>
-      <div class="form-group"><label>Ghi chú</label><input type="text" id="tvGhiChu" placeholder="Ghi chú thêm..."></div>
-      <div class="form-grid">
-        <div class="form-group"><label>Dân tộc</label><input type="text" id="tvDanToc" value="Kinh"></div>
-        <div class="form-group"><label>Tôn giáo</label><input type="text" id="tvTonGiao" value="Không"></div>
-      </div>
+      <div class="form-group"><label>Địa chỉ thường trú</label><input type="text" id="tvThuongTru"></div>
+      <div class="form-group"><label>Địa chỉ tạm trú</label><input type="text" id="tvTamTru"></div>
+      <div class="form-group"><label>Ghi chú</label><input type="text" id="tvGhiChu"></div>
 
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
         <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalThemThanhVienVaoHo()">Hủy</button>
@@ -516,6 +427,7 @@
         <span style="font-size:22px; cursor:pointer; color:#888;" onclick="dongModalXuLyHinh5()">✕</span>
       </div>
       
+      <input type="hidden" id="f5MaPA">
       <div class="form-group">
         <label>Phân công cán bộ phụ trách</label>
         <select id="f5CanBo">
@@ -529,9 +441,9 @@
       <div class="form-group">
         <label>Trạng thái hồ sơ</label>
         <select id="f5TrangThai">
-          <option value="Hoàn thành (Trả phiếu kết quả cho công dân)">Hoàn thành (Trả phiếu kết quả cho công dân)</option>
-          <option value="Đang thụ lý xác minh">Đang thụ lý xác minh</option>
-          <option value="Từ chối xử lý">Từ chối xử lý (Không thuộc thẩm quyền)</option>
+          <option value="DA_XU_LY">Hoàn thành (Trả phiếu kết quả cho công dân)</option>
+          <option value="DANG_XU_LY">Đang thụ lý xác minh</option>
+          <option value="TU_CHOI">Từ chối xử lý (Không thuộc thẩm quyền)</option>
         </select>
       </div>
 
@@ -547,12 +459,12 @@
 
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
         <button style="padding:9px 18px; border:1px solid #CCC; background:#FFF; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalXuLyHinh5()">Đóng</button>
-        <button style="padding:9px 20px; border:none; background:var(--admin-red); color:white; border-radius:8px; font-weight:800; cursor:pointer;" onclick="luuKetQuaHinh5()">Lưu Kết Quả</button>
+        <button style="padding:9px 20px; border:none; background:var(--admin-red); color:white; border-radius:8px; font-weight:800; cursor:pointer;" onclick="luuKetQuaHinh5()">Lưu Kết Quả & Phát Tin</button>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL SỬA CƯ DÂN (ĐÃ XÓA CHỮ ĐỎ THEO HÌNH 2) ================= -->
+  <!-- ================= MODAL SỬA CƯ DÂN ================= -->
   <div class="modal-backdrop" id="modalSuaCuDan">
     <div class="modal-window">
       <h3 style="color:var(--admin-jade); margin-bottom:12px;">Cập Nhật Thông Tin Nhân Khẩu</h3>
@@ -562,7 +474,7 @@
         <div class="form-group"><label>Giới tính *</label><select id="editGioiTinh"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
       </div>
       <div class="form-grid">
-        <div class="form-group"><label>Số CCCD (Tài khoản) *</label><input type="text" id="editCCCD"></div>
+        <div class="form-group"><label>Số CCCD (Tài khoản) *</label><input type="text" id="editCCCD" readonly style="background:#F5F7F6;"></div>
         <div class="form-group"><label>Số điện thoại *</label><input type="tel" id="editSDT"></div>
       </div>
       <div class="form-grid">
@@ -578,7 +490,6 @@
       <div class="form-group"><label>Ghi chú</label><input type="text" id="editGhiChu"></div>
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
         <button style="padding:9px 16px; border:none; background:#EEE; border-radius:8px; font-weight:700; cursor:pointer;" onclick="dongModalSuaCuDan()">Hủy</button>
-        <!-- ĐÃ XÓA CHỮ ĐỎ KHOANH TRÒN CHUẨN XÁC THEO HÌNH 2 -->
         <button style="padding:9px 18px; border:none; background:var(--admin-emerald); color:white; border-radius:8px; font-weight:700; cursor:pointer;" onclick="luuSuaCuDan()">Lưu</button>
       </div>
     </div>
@@ -593,8 +504,15 @@
         <div class="form-group">
           <label>Khu phố trực thuộc *</label>
           <select id="newMeetKP">
+            <option value="Toàn Phường">-- Toàn Phường Phước Thắng --</option>
             <option value="Khu Phố 1">Khu Phố 1</option><option value="Khu Phố 2">Khu Phố 2</option>
-            <option value="Khu Phố 3">Khu Phố 3</option><option value="Toàn Phường">-- Toàn Phường Phước Thắng --</option>
+            <option value="Khu Phố 3">Khu Phố 3</option><option value="Khu Phố 4">Khu Phố 4</option>
+            <option value="Khu Phố 5">Khu Phố 5</option><option value="Khu Phố 6">Khu Phố 6</option>
+            <option value="Khu Phố 7">Khu Phố 7</option><option value="Khu Phố 8">Khu Phố 8</option>
+            <option value="Khu Phố 9">Khu Phố 9</option><option value="Khu Phố 10">Khu Phố 10</option>
+            <option value="Khu Phố 11">Khu Phố 11</option><option value="Khu Phố 12">Khu Phố 12</option>
+            <option value="Khu Phố 13">Khu Phố 13</option><option value="Khu Phố 14">Khu Phố 14</option>
+            <option value="Khu Phố 15">Khu Phố 15</option><option value="Khu Phố 16">Khu Phố 16</option>
           </select>
         </div>
         <div class="form-group"><label>Ngày họp *</label><input type="date" id="newMeetDate"></div>
@@ -617,10 +535,11 @@
   <div class="modal-backdrop" id="modalTraLoiGopY">
     <div class="modal-window">
       <h3 style="color:var(--admin-jade); margin-bottom:12px;">Phản Hồi Ý Kiến Góp Ý Của Cư Dân</h3>
+      <input type="hidden" id="repMaPA">
       <div class="form-group"><label>Tiêu đề góp ý của dân</label><input type="text" id="repTitle" readonly style="background:#F5F7F6;"></div>
       <div class="form-group">
         <label>Cập nhật trạng thái xử lý *</label>
-        <select id="repStatus"><option value="Đã xử lý">Đã xử lý (Hoàn tất)</option><option value="Đang xử lý">Đang xử lý</option></select>
+        <select id="repStatus"><option value="DA_XU_LY">Đã xử lý (Hoàn tất)</option><option value="DANG_XU_LY">Đang xử lý</option></select>
       </div>
       <div class="form-group"><label>Nội dung câu trả lời từ Khu phố / UBND *</label><textarea id="repContent" rows="4" placeholder="Nhập câu trả lời gửi về app của dân..."></textarea></div>
       <div style="display:flex; justify-content:flex-end; gap:10px;">
@@ -643,7 +562,12 @@
         <div class="form-group"><label>Vai trò hệ thống</label><input type="text" id="accRole" readonly style="background:#F5F7F6; font-weight:700;"></div>
         <div class="form-group">
           <label>Địa bàn khu phố *</label>
-          <select id="accKP"><option>Khu Phố 1</option><option>Khu Phố 2</option><option>Khu Phố 3</option></select>
+          <select id="accKP">
+            <option>Khu Phố 1</option><option>Khu Phố 2</option><option>Khu Phố 3</option><option>Khu Phố 4</option>
+            <option>Khu Phố 5</option><option>Khu Phố 6</option><option>Khu Phố 7</option><option>Khu Phố 8</option>
+            <option>Khu Phố 9</option><option>Khu Phố 10</option><option>Khu Phố 11</option><option>Khu Phố 12</option>
+            <option>Khu Phố 13</option><option>Khu Phố 14</option><option>Khu Phố 15</option><option>Khu Phố 16</option>
+          </select>
         </div>
       </div>
       <div class="form-group"><label>Quyền hạn thực thi</label><textarea id="accPermDesc" rows="2" readonly style="background:#F5F7F6;"></textarea></div>
@@ -654,9 +578,14 @@
     </div>
   </div>
 
+  <!-- ================= JAVASCRIPT ĐỒNG BỘ 2 CHIỀU ================= -->
   <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxWMJw1YfN-LHSbRoYbb4hhtM6AsyoH-SAzzK1Ma4BWdT_hG_pEQtgjmt3Cen0Plzte1A/exec";
-    // DỮ LIỆU ĐẦY ĐỦ 16 KHU PHỐ
+    // ==============================================================================
+    // 👉 BẠN DÁN LINK GOOGLE APPS SCRIPT VÀO GIỮA HAI DẤU NGOẶC KÉP DƯỚI ĐÂY:
+    // ==============================================================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbxRyBn5EKEvouH4RIk7DarlTpjB4ot2yOJgsNHAIopznl_L0dGeIy3cWllUoOBwWILcAw/execĐông";
+
+    // BẢNG DỮ LIỆU ĐẦY ĐỦ 16 KHU PHỐ
     const DATA_16_KHU_PHO = [
       { name: "Khu Phố 1", dan: "4.399", ho: "1.138", dt: "491,35 ha", pct: "98.2%", color: "#00A86B" },
       { name: "Khu Phố 2", dan: "5.071", ho: "1.312", dt: "41,85 ha", pct: "94.5%", color: "#28A745" },
@@ -675,6 +604,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxWMJw1YfN-LHSbRoYbb4hh
       { name: "Khu Phố 15", dan: "4.762", ho: "1.232", dt: "363,71 ha", pct: "91.5%", color: "#28A745" },
       { name: "Khu Phố 16", dan: "3.603", ho: "932", dt: "1.791,67 ha", pct: "85.0%", color: "#DC3545" }
     ];
+
+    let SERVER_DATA = { nhanKhau: [], hoDan: [], taiKhoan: [], cuocHop: [], phanAnh: [] };
 
     function render16KhuPhoProgress() {
       const box = document.getElementById('progress16KhuPhoBox');
@@ -695,7 +626,177 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxWMJw1YfN-LHSbRoYbb4hh
       box.innerHTML = html;
     }
 
-    // TAB SWITCH
+    // 1. GỌI DỮ LIỆU TỰ ĐỘNG TỪ GOOGLE SHEETS
+    function taiDuLieuTuServer() {
+      document.getElementById('serverStatusText').innerText = "🟡 Đang đồng bộ máy chủ...";
+      fetch(`${API_URL}?action=GET_ADMIN_ALL_DATA`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === "success") {
+            SERVER_DATA = res.data;
+            capNhatGiaoDienTuServer();
+            document.getElementById('serverStatusText').innerText = "🟢 Đã kết nối Máy chủ Google";
+          } else {
+            document.getElementById('serverStatusText').innerText = "🔴 Lỗi nạp: " + res.message;
+          }
+        })
+        .catch(err => {
+          document.getElementById('serverStatusText').innerText = "🔴 Mất kết nối máy chủ";
+          console.error(err);
+        });
+    }
+
+    // 2. VẼ DỮ LIỆU THẬT VÀO 7 TAB
+    function capNhatGiaoDienTuServer() {
+      const tongDan = SERVER_DATA.nhanKhau.length;
+      const tongHo = SERVER_DATA.hoDan.length;
+      const dsChoDuyet = SERVER_DATA.nhanKhau.filter(nk => nk.trangThai === "CHO_DUYET");
+      
+      document.getElementById('statTongDan').innerText = tongDan.toLocaleString();
+      document.getElementById('statTongHo').innerText = tongHo.toLocaleString();
+      document.getElementById('statChoDuyet').innerText = dsChoDuyet.length;
+      document.getElementById('badgeCuDan').innerText = dsChoDuyet.length;
+
+      // Tab 1: Chờ duyệt
+      const cdTbody = document.getElementById('tableChoDuyetBody');
+      if (dsChoDuyet.length === 0) {
+        cdTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888;">Không có hồ sơ nào đang chờ duyệt.</td></tr>`;
+      } else {
+        cdTbody.innerHTML = dsChoDuyet.map(nk => `
+          <tr onclick="selectTableRow(this)">
+            <td><b>${nk.hoTen}</b></td><td>${nk.cccd}</td><td>${nk.sdt}</td>
+            <td><span style="color:var(--admin-emerald); font-weight:700;">${nk.kpName}</span></td>
+            <td>${nk.thuongTru}</td><td>${nk.ngheNghiep || ''} / ${nk.trinhDo || ''}</td>
+            <td><span style="background:#FFF4E5; color:#E67E22; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">Chờ duyệt</span></td>
+            <td style="text-align:center;">
+              <button class="btn-action-approve" onclick="pheDuyetHoSo('${nk.cccd}', '${nk.hoTen}')">Phê Duyệt</button>
+              <button class="btn-action-reject" onclick="tuChoiHoSo('${nk.cccd}')">Từ Chối</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Tab 2: Nhân khẩu
+      renderTableCuDan(SERVER_DATA.nhanKhau);
+
+      // Tab 3: Hộ dân
+      const hoTbody = document.getElementById('tableHoDanBody');
+      if (SERVER_DATA.hoDan.length === 0) {
+        hoTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888;">Chưa có dữ liệu hộ dân.</td></tr>`;
+      } else {
+        hoTbody.innerHTML = SERVER_DATA.hoDan.map(ho => `
+          <tr onclick="selectTableRow(this)">
+            <td><b>${ho.maHo}</b></td><td><b>${ho.chuHo}</b></td><td>${ho.khuPho}</td><td>${ho.thuongTru}</td>
+            <td><span style="font-weight:800; color:var(--admin-emerald);">${ho.soNhanKhau || 1} người</span></td>
+            <td>${ho.chinhSach || 'Không'}</td><td>${ho.ghiChu || ''}</td>
+            <td style="text-align:center;">
+              <button class="btn-action-edit" onclick="moXemSuaTongTheHo('${ho.maHo}')">Xem & Chỉnh Sửa Hộ</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Tab 4: Cuộc họp
+      const chTbody = document.getElementById('cuocHopTableBody');
+      if (SERVER_DATA.cuocHop.length === 0) {
+        chTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">Chưa có cuộc họp nào.</td></tr>`;
+      } else {
+        chTbody.innerHTML = SERVER_DATA.cuocHop.map(ch => `
+          <tr onclick="selectTableRow(this)">
+            <td><b>${ch.tieuDe}</b></td><td><span style="color:var(--admin-emerald); font-weight:800;">${ch.kp}</span></td>
+            <td>${ch.thoiGian} | ${ch.ngayHop}</td><td>${ch.diaDiem}</td><td>${ch.chuTri}</td>
+            <td>${ch.fileUrl ? `<button class="btn-media-view" onclick="xemFileViewer('${ch.fileUrl}', 'pdf')">📄 Xem PDF</button>` : 'Không có'}</td>
+            <td style="text-align:center;"><button class="btn-action-approve" onclick="alert('Đã gửi thông báo đến cư dân ${ch.kp}!')">Bắn Tin Nhắn</button></td>
+          </tr>
+        `).join('');
+      }
+
+      // Tab 5 & 6: Ý kiến và An ninh
+      const dsGopY = SERVER_DATA.phanAnh.filter(pa => pa.loaiTin !== "AN_NINH");
+      const dsAnNinh = SERVER_DATA.phanAnh.filter(pa => pa.loaiTin === "AN_NINH");
+      
+      document.getElementById('badgeGopY').innerText = dsGopY.filter(g => g.trangThai === "CHO_XU_LY").length;
+      document.getElementById('badgeAnNinh').innerText = dsAnNinh.filter(a => a.trangThai === "CHO_XU_LY").length;
+
+      const gyTbody = document.getElementById('gopYTableBody');
+      if (dsGopY.length === 0) {
+        gyTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">Không có ý kiến đóng góp.</td></tr>`;
+      } else {
+        gyTbody.innerHTML = dsGopY.map(gy => `
+          <tr onclick="selectTableRow(this)">
+            <td><b>${gy.hoTen}</b><br><span style="font-size:11px;">${gy.cccd}</span></td><td>${gy.kpName}</td>
+            <td><b>${gy.tieuDe}</b><br><span style="font-size:12px; color:#555;">${gy.noiDung}</span></td>
+            <td>${gy.fileUrl ? `<button class="btn-media-view" onclick="xemFileViewer('${gy.fileUrl}', 'img')">🖼️ Xem File</button>` : 'Không có'}</td>
+            <td><span class="status-badge" style="background:${gy.trangThai === 'DA_XU_LY' ? '#E2F7ED' : '#FFF4E5'}; color:${gy.trangThai === 'DA_XU_LY' ? 'var(--admin-emerald)' : '#E67E22'}; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">${gy.trangThai === 'DA_XU_LY' ? 'Đã xử lý' : 'Chờ xử lý'}</span></td>
+            <td style="font-size:12px; color:#004D40;">${gy.traLoi || 'Chưa phản hồi'}</td>
+            <td style="text-align:center;">
+              <button class="btn-action-edit" onclick="moModalTraLoi('${gy.maPA}', '${gy.tieuDe}')">Trả Lời / Sửa</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      const anTbody = document.getElementById('anNinhTableBody');
+      if (dsAnNinh.length === 0) {
+        anTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">Không có phản ánh an ninh.</td></tr>`;
+      } else {
+        anTbody.innerHTML = dsAnNinh.map(an => `
+          <tr onclick="selectTableRow(this)">
+            <td><b>${an.maPA}</b></td>
+            <td><b>${an.hoTen}</b><br><span style="font-size:11px;">${an.sdt}</span></td>
+            <td>${an.diaChi}</td>
+            <td><b>${an.tieuDe}</b><br><span style="font-size:12px;">${an.noiDung}</span></td>
+            <td>${an.fileUrl ? `<button class="btn-media-view" style="color:var(--admin-red);" onclick="xemFileViewer('${an.fileUrl}', 'img')">📷 Chứng Cứ</button>` : 'Không có'}</td>
+            <td><span style="background:${an.trangThai === 'DA_XU_LY' ? '#E2F7ED' : '#FDECEE'}; color:${an.trangThai === 'DA_XU_LY' ? 'var(--admin-emerald)' : 'var(--admin-red)'}; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;">${an.trangThai === 'DA_XU_LY' ? 'Đã xử lý' : 'Mới tiếp nhận'}</span></td>
+            <td style="text-align:center;">
+              <button class="btn-action-reject" style="background:#A30D11;" onclick="moModalXuLyHinh5('${an.maPA}')">Chuyển Xử Lý & Trả Kết Quả</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Tab 7: Phân quyền
+      const pqTbody = document.getElementById('tablePhanQuyenBody');
+      if (SERVER_DATA.taiKhoan.length === 0) {
+        pqTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">Chưa có tài khoản.</td></tr>`;
+      } else {
+        pqTbody.innerHTML = SERVER_DATA.taiKhoan.map(u => `
+          <tr onclick="selectTableRow(this)">
+            <td><b>${u.hoTen}</b></td><td>${u.cccd || u.sdt}</td>
+            <td><span style="background:${u.vaiTro === 'CAN_BO' ? '#E2F7ED' : '#E8F0FE'}; color:${u.vaiTro === 'CAN_BO' ? 'var(--admin-emerald)' : '#1877F2'}; padding:3px 8px; border-radius:5px; font-weight:800; font-size:11px;">${u.vaiTro === 'CAN_BO' ? 'Cán bộ Khu phố' : 'Cư dân'}</span></td>
+            <td>${u.kpName}</td>
+            <td><span style="color:${u.trangThai === 'DA_DUYET' ? 'var(--admin-emerald)' : '#E67E22'}; font-weight:700;">${u.trangThai === 'DA_DUYET' ? 'Đã kích hoạt' : 'Chờ duyệt'}</span></td>
+            <td style="text-align:center;"><button class="btn-action-edit" onclick="alert('Cấu hình tài khoản: ${u.hoTen}')">Cấu Hình</button></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function renderTableCuDan(list) {
+      const tbody = document.getElementById('tableCuDanBody');
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#888;">Không có nhân khẩu nào.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = list.map(nk => `
+        <tr data-kp="${nk.kpName}" onclick="selectTableRow(this)">
+          <td><b>${nk.hoTen}</b></td><td>${nk.ngaySinh} | ${nk.gioiTinh}</td><td>${nk.cccd}</td><td>${nk.sdt}</td>
+          <td><span style="color:var(--admin-emerald); font-weight:700;">${nk.kpName}</span></td>
+          <td>${nk.ngheNghiep || ''} | ${nk.noiLamViec || ''}</td><td>${nk.trinhDo || ''} | ${nk.chuyenMon || ''}</td><td>${nk.ghiChu || ''}</td>
+          <td style="text-align:center;"><button class="btn-action-edit" onclick="moSuaCuDan('${nk.hoTen}', '${nk.cccd}', '${nk.ngaySinh}', '${nk.gioiTinh}', '${nk.sdt}', '${nk.kpName}', '${nk.ngheNghiep}', '${nk.noiLamViec}', '${nk.trinhDo}', '${nk.chuyenMon}', '${nk.thuongTru}', '${nk.tamTru}', '${nk.ghiChu}')">Chỉnh Sửa</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function filterCuDanTable() {
+      const kp = document.getElementById('filterCuDanKP').value;
+      if (kp === "ALL") {
+        renderTableCuDan(SERVER_DATA.nhanKhau);
+      } else {
+        renderTableCuDan(SERVER_DATA.nhanKhau.filter(n => n.kpName === kp));
+      }
+    }
+
     function switchAdminTab(tabId, el) {
       document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -709,129 +810,256 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxWMJw1YfN-LHSbRoYbb4hh
       tr.classList.add('selected-row');
     }
 
-    function filterCuDanTable() {
-      const selectedKP = document.getElementById('filterCuDanKP').value;
-      const rows = document.querySelectorAll('#tableCuDanBody tr');
-      rows.forEach(r => {
-        const kp = r.getAttribute('data-kp');
-        r.style.display = (selectedKP === "ALL" || kp === selectedKP) ? '' : 'none';
-      });
-    }
-
-    // MEDIA VIEWER
-    function xemFileViewer(fileName, type) {
+    function xemFileViewer(fileUrl, type) {
       const container = document.getElementById('mediaContainer');
-      document.getElementById('viewerTitle').innerText = "Trình Chiếu Chứng Cứ: " + fileName;
-      if (type === 'pdf') {
-        container.innerHTML = `<div style="padding:25px; text-align:center;"><div style="font-size:45px;">📄</div><p style="font-weight:800; color:#0078D4; margin-top:8px;">Tài liệu PDF: ${fileName}</p><p style="font-size:12px; color:#666;">Trình duyệt đang mở tài liệu PDF công vụ.</p></div>`;
-      } else if (type === 'img') {
-        container.innerHTML = `<div style="padding:15px; text-align:center;"><div style="font-size:50px;">🖼️</div><p style="font-weight:800; color:var(--admin-emerald); margin-top:8px;">Ảnh hiện trường: ${fileName}</p><p style="font-size:12px; color:#666;">Đã xác thực vị trí GPS gửi từ PWA.</p></div>`;
-      } else if (type === 'video') {
-        container.innerHTML = `<div style="padding:25px; text-align:center;"><div style="font-size:50px;">📹</div><p style="font-weight:800; color:var(--admin-red); margin-top:8px;">Clip Video Hiện Trường: ${fileName}</p><p style="font-size:12px; color:#666;">Video clip độ nét cao Full HD 1080p.</p></div>`;
+      document.getElementById('viewerTitle').innerText = "Trình Chiếu Chứng Cứ Đính Kèm";
+      if (type === 'pdf' || fileUrl.includes('.pdf')) {
+        container.innerHTML = `<iframe src="${fileUrl}" style="width:100%; height:400px; border:none;"></iframe>`;
+      } else {
+        container.innerHTML = `<img src="${fileUrl}" style="max-width:100%; max-height:400px; border-radius:8px;" alt="Chứng cứ">`;
       }
       document.getElementById('modalMediaViewer').style.display = 'flex';
     }
     function dongMediaViewer() { document.getElementById('modalMediaViewer').style.display = 'none'; }
 
-    // CUỘC HỌP
+    // PHÊ DUYỆT HỒ SƠ LÊN MÁY CHỦ
+    function pheDuyetHoSo(cccd, name) {
+      if (!confirm(`Xác nhận phê duyệt tài khoản và nhân khẩu cho: ${name}?`)) return;
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "PHE_DUYET_NHAN_KHAU", cccd: cccd })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === "success") {
+          alert(`Đã phê duyệt thành công cho ${name}! Thông báo đã tự động gửi đến App PWA của công dân.`);
+          taiDuLieuTuServer();
+        } else {
+          alert("Lỗi: " + res.message);
+        }
+      });
+    }
+
+    function tuChoiHoSo(cccd) {
+      const reason = prompt("Nhập lý do từ chối hồ sơ:", "Sai lệch thông tin địa chỉ/CCCD");
+      if (!reason) return;
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "TU_CHOI_HO_SO", cccd: cccd, lyDo: reason })
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert("Đã từ chối và phản hồi đến công dân!");
+        taiDuLieuTuServer();
+      });
+    }
+
+    // TẠO CUỘC HỌP
     function moModalTaoCuocHop() { document.getElementById('modalTaoCuocHop').style.display = 'flex'; }
     function dongModalTaoCuocHop() { document.getElementById('modalTaoCuocHop').style.display = 'none'; }
     function luuCuocHopMoi() {
       const title = document.getElementById('newMeetTitle').value.trim();
       const kp = document.getElementById('newMeetKP').value;
-      const time = document.getElementById('newMeetTime').value.trim() || "15:00 - 16:30";
-      const date = document.getElementById('newMeetDate').value || "10/09/2026";
-      const host = document.getElementById('newMeetHost').value.trim() || "Trưởng Khu Phố";
-      const loc = document.getElementById('newMeetLoc').value.trim() || "Văn phòng Khu phố";
-      if (!title) return alert("Vui lòng nhập tên cuộc họp!");
+      const date = document.getElementById('newMeetDate').value;
+      const time = document.getElementById('newMeetTime').value.trim();
+      const host = document.getElementById('newMeetHost').value.trim();
+      const loc = document.getElementById('newMeetLoc').value.trim();
+      const desc = document.getElementById('newMeetDesc').value.trim();
+      const fileInput = document.getElementById('newMeetFile');
 
-      const tbody = document.getElementById('cuocHopTableBody');
-      const newTr = document.createElement('tr');
-      newTr.onclick = function() { selectTableRow(this); };
-      newTr.innerHTML = `
-        <td><b>${title}</b></td><td><span style="color:var(--admin-emerald); font-weight:800;">${kp}</span></td>
-        <td>${time} | ${date}</td><td>${loc}</td><td>${host}</td>
-        <td><button class="btn-media-view" onclick="xemFileViewer('Giay_Moi_Hop.pdf', 'pdf')">📄 Xem PDF</button></td>
-        <td style="text-align:center;"><button class="btn-action-approve" onclick="alert('Đã gửi thông báo đến cư dân ${kp}!')">Bắn Tin Nhắn</button></td>
-      `;
-      tbody.prepend(newTr);
-      alert(`Đã phát hành thành công cuộc họp cho [${kp}]!`);
-      document.getElementById('newMeetTitle').value = "";
-      dongModalTaoCuocHop();
+      if (!title || !date || !time) return alert("Vui lòng điền đủ tên cuộc họp, ngày họp và thời gian!");
+
+      const sendPayload = (base64 = "", fileName = "") => {
+        fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "TAO_CUOC_HOP",
+            tieuDe: title, kp: kp, ngayHop: date, thoiGian: time, chuTri: host,
+            diaDiem: loc, noiDung: desc, fileBase64: base64, fileName: fileName
+          })
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === "success") {
+            alert(`Đã tạo thành công cuộc họp cho [${kp}]! Giấy mời đã xuất hiện trên App của người dân.`);
+            dongModalTaoCuocHop();
+            taiDuLieuTuServer();
+          } else {
+            alert("Lỗi: " + res.message);
+          }
+        });
+      };
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = e => sendPayload(e.target.result, file.name);
+        reader.readAsDataURL(file);
+      } else {
+        sendPayload();
+      }
     }
 
     // TRẢ LỜI GÓP Ý
-    let currentGopYRow = null;
-    function moModalTraLoi(title, btn) {
-      currentGopYRow = btn.closest('tr');
+    function moModalTraLoi(maPA, title) {
+      document.getElementById('repMaPA').value = maPA;
       document.getElementById('repTitle').value = title;
       document.getElementById('modalTraLoiGopY').style.display = 'flex';
     }
     function dongModalTraLoi() { document.getElementById('modalTraLoiGopY').style.display = 'none'; }
     function luuTraLoiGopY() {
+      const maPA = document.getElementById('repMaPA').value;
       const content = document.getElementById('repContent').value.trim();
       const status = document.getElementById('repStatus').value;
-      if (!content) return alert("Vui lòng nhập nội dung câu trả lời!");
-      if (currentGopYRow) {
-        currentGopYRow.querySelector('.status-badge').innerText = status;
-        currentGopYRow.querySelector('.reply-text').innerText = content;
-      }
-      alert("Đã gửi phản hồi thành công về mục Thông Tin Khu Phố!");
-      dongModalTraLoi();
+      if (!content) return alert("Vui lòng nhập nội dung phản hồi!");
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "TRA_LOI_PHAN_ANH",
+          maPA: maPA, noiDungTraLoi: content, trangThai: status, canBo: "Ban Quản Trị"
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert("Đã gửi phản hồi thành công về App của cư dân!");
+        dongModalTraLoi();
+        taiDuLieuTuServer();
+      });
     }
 
-    // XỬ LÝ PHẢN ÁNH HÌNH 5
-    function moModalXuLyHinh5(location) { document.getElementById('modalXuLyHinh5').style.display = 'flex'; }
+    // XỬ LÝ PHẢN ÁNH AN NINH (HÌNH 5)
+    function moModalXuLyHinh5(maPA) {
+      document.getElementById('f5MaPA').value = maPA;
+      document.getElementById('modalXuLyHinh5').style.display = 'flex';
+    }
     function dongModalXuLyHinh5() { document.getElementById('modalXuLyHinh5').style.display = 'none'; }
     function luuKetQuaHinh5() {
-      const content = document.getElementById('f5NoiDung').value.trim();
-      if (!content) return alert("Vui lòng nhập nội dung giải quyết!");
-      document.getElementById('statusPA01').innerText = "Đã xử lý";
-      document.getElementById('statusPA01').style.background = "#E2F7ED";
-      document.getElementById('statusPA01').style.color = "#00A86B";
-      alert("Lưu kết quả thành công! Thông báo kèm phiếu giải quyết (PDF/ảnh) đã được gửi trực tiếp đến mục Thông Báo.");
-      dongModalXuLyHinh5();
+      const maPA = document.getElementById('f5MaPA').value;
+      const canBo = document.getElementById('f5CanBo').value;
+      const status = document.getElementById('f5TrangThai').value;
+      const noiDung = document.getElementById('f5NoiDung').value.trim();
+      const fileInput = document.getElementById('f5File');
+
+      if (!noiDung) return alert("Vui lòng nhập nội dung giải quyết!");
+
+      const sendPayload = (base64 = "", fileName = "") => {
+        fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "TRA_LOI_PHAN_ANH",
+            maPA: maPA, canBo: canBo, trangThai: status, noiDungTraLoi: noiDung,
+            fileBase64: base64, fileName: fileName
+          })
+        })
+        .then(res => res.json())
+        .then(res => {
+          alert("Lưu kết quả thành công! Thông báo kèm phiếu giải quyết đã được gửi trực tiếp đến App của người dân.");
+          dongModalXuLyHinh5();
+          taiDuLieuTuServer();
+        });
+      };
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = e => sendPayload(e.target.result, file.name);
+        reader.readAsDataURL(file);
+      } else {
+        sendPayload();
+      }
     }
 
-    // SỔ HỘ GIA ĐÌNH VÀ THÀNH VIÊN
+    // XEM & SỬA SỔ HỘ DÂN
     function moXemSuaTongTheHo(maHo) {
-      document.getElementById('hoMaHo').value = maHo;
+      const ho = SERVER_DATA.hoDan.find(h => h.maHo === maHo);
+      if (!ho) return;
+      document.getElementById('hoMaHo').value = ho.maHo;
+      document.getElementById('hoChuHo').value = ho.chuHo;
+      document.getElementById('hoCCCD').value = ho.cccd;
+      document.getElementById('hoSDT').value = ho.sdt;
+      document.getElementById('hoKhuPho').value = ho.khuPho;
+      document.getElementById('hoChinhSach').value = ho.chinhSach || 'Không';
+      document.getElementById('hoDiaChi').value = ho.thuongTru;
+      document.getElementById('hoGhiChu').value = ho.ghiChu || '';
+
+      const thanhVien = SERVER_DATA.nhanKhau.filter(nk => nk.maHo === maHo);
+      const tvBody = document.getElementById('hoThanhVienBody');
+      tvBody.innerHTML = thanhVien.map(tv => `
+        <tr>
+          <td><b>${tv.quanHe}</b></td><td>${tv.hoTen}</td><td>${tv.cccd}</td><td>${tv.ngaySinh}</td><td>${tv.sdt}</td>
+        </tr>
+      `).join('');
+
       document.getElementById('modalXemSuaHo').style.display = 'flex';
     }
     function dongModalXemSuaHo() { document.getElementById('modalXemSuaHo').style.display = 'none'; }
     function luuToanBoHoDan() {
-      alert("Đã lưu và đồng bộ toàn bộ thông tin sổ hộ gia đình!");
-      dongModalXemSuaHo();
-    }
-    function xoaThanhVienKhoiHo(btn, name) {
-      if (confirm(`Bạn có chắc chắn muốn xóa thành viên [${name}] khỏi hộ gia đình này?`)) {
-        btn.closest('tr').remove();
-        alert(`Đã xóa thành viên ${name}!`);
-      }
+      const maHo = document.getElementById('hoMaHo').value;
+      const chuHo = document.getElementById('hoChuHo').value;
+      const sdt = document.getElementById('hoSDT').value;
+      const chinhSach = document.getElementById('hoChinhSach').value;
+      const diaChi = document.getElementById('hoDiaChi').value;
+      const ghiChu = document.getElementById('hoGhiChu').value;
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "CAP_NHAT_HO_DAN",
+          maHo: maHo, chuHo: chuHo, sdt: sdt, chinhSach: chinhSach, thuongTru: diaChi, ghiChu: ghiChu
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert("Đã cập nhật thông tin sổ hộ gia đình lên Google Sheets!");
+        dongModalXemSuaHo();
+        taiDuLieuTuServer();
+      });
     }
 
     // THÊM THÀNH VIÊN VÀO HỘ
-    function moModalThemThanhVienVaoHo() { document.getElementById('modalThemTVHo').style.display = 'flex'; }
+    function moModalThemThanhVienVaoHo() {
+      document.getElementById('tvKP').value = document.getElementById('hoKhuPho').value;
+      document.getElementById('modalThemTVHo').style.display = 'flex';
+    }
     function dongModalThemThanhVienVaoHo() { document.getElementById('modalThemTVHo').style.display = 'none'; }
     function thucHienThemThanhVienVaoHo() {
       const name = document.getElementById('tvName').value.trim();
+      const dob = document.getElementById('tvDob').value;
+      const gender = document.getElementById('tvGender').value;
+      const cccd = document.getElementById('tvCCCD').value.trim();
+      const sdt = document.getElementById('tvSDT').value.trim();
       const qh = document.getElementById('tvQuanHe').value;
-      const cccd = document.getElementById('tvCCCD').value.trim() || "Chưa có";
-      const dob = document.getElementById('tvDob').value || "01/01/2000";
-      if (!name) return alert("Vui lòng nhập họ tên thành viên!");
+      const kp = document.getElementById('tvKP').value;
+      const chuHoCCCD = document.getElementById('hoCCCD').value;
 
-      const tbody = document.getElementById('hoThanhVienBody');
-      const newTr = document.createElement('tr');
-      newTr.innerHTML = `
-        <td><b>${qh}</b></td><td>${name}</td><td>${cccd}</td><td>${dob}</td>
-        <td style="text-align:center;"><button class="btn-action-reject" onclick="xoaThanhVienKhoiHo(this, '${name}')">Xóa</button></td>
-      `;
-      tbody.appendChild(newTr);
-      alert(`Đã thêm thành viên [${name}] vào sổ hộ thành công!`);
-      dongModalThemThanhVienVaoHo();
+      if (!name || !cccd) return alert("Vui lòng nhập họ tên và số CCCD!");
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "THEM_THANH_VIEN",
+          chuHoCCCD: chuHoCCCD, hoTen: name, ngaySinh: dob, gioiTinh: gender,
+          cccd: cccd, sdt: sdt, quanHe: qh, kpName: kp,
+          ngheNghiep: document.getElementById('tvNghe').value,
+          noiLamViec: document.getElementById('tvNoiLam').value,
+          trinhDo: document.getElementById('tvTrinhDo').value,
+          chuyenMon: document.getElementById('tvChuyenMon').value,
+          thuongTru: document.getElementById('tvThuongTru').value,
+          tamTru: document.getElementById('tvTamTru').value,
+          ghiChu: document.getElementById('tvGhiChu').value
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert("Đã thêm thành viên mới vào hộ thành công trên máy chủ!");
+        dongModalThemThanhVienVaoHo();
+        dongModalXemSuaHo();
+        taiDuLieuTuServer();
+      });
     }
 
-    // SỬA CƯ DÂN (NÚT LƯU ĐÃ ĐƯỢC TINH GỌN THEO HÌNH 2)
+    // SỬA NHÂN KHẨU
     function moSuaCuDan(name, cccd, dob, gender, sdt, kp, nghe, noiLam, trinhDo, chuyenMon, thuongTru, tamTru, ghiChu) {
       document.getElementById('editHoTen').value = name;
       document.getElementById('editCCCD').value = cccd;
@@ -849,19 +1077,41 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxWMJw1YfN-LHSbRoYbb4hh
     }
     function dongModalSuaCuDan() { document.getElementById('modalSuaCuDan').style.display = 'none'; }
     function luuSuaCuDan() {
-      alert("Đã cập nhật thông tin nhân khẩu thành công!");
-      dongModalSuaCuDan();
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "CAP_NHAT_NHAN_KHAU",
+          cccd: document.getElementById('editCCCD').value,
+          hoTen: document.getElementById('editHoTen').value,
+          ngaySinh: document.getElementById('editNgaySinh').value,
+          gioiTinh: document.getElementById('editGioiTinh').value,
+          sdt: document.getElementById('editSDT').value,
+          ngheNghiep: document.getElementById('editNgheNghiep').value,
+          noiLamViec: document.getElementById('editNoiLamViec').value,
+          trinhDo: document.getElementById('editTrinhDo').value,
+          chuyenMon: document.getElementById('editChuyenMon').value,
+          thuongTru: document.getElementById('editThuongTru').value,
+          tamTru: document.getElementById('editTamTru').value,
+          ghiChu: document.getElementById('editGhiChu').value
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert("Đã cập nhật thông tin nhân khẩu trên máy chủ!");
+        dongModalSuaCuDan();
+        taiDuLieuTuServer();
+      });
     }
 
     // TẠO TÀI KHOẢN
     function moModalTaoTaiKhoan(type) {
       if (type === 'CAN_BO') {
         document.getElementById('accModalTitle').innerText = "Cấp Tài Khoản Ban Điều Hành Khu Phố";
-        document.getElementById('accRole').value = "Cán bộ Khu phố";
+        document.getElementById('accRole').value = "CAN_BO";
         document.getElementById('accPermDesc').value = "Tạo cuộc họp, Duyệt cư dân, Trả lời góp ý trong khu phố phụ trách.";
       } else {
         document.getElementById('accModalTitle').innerText = "Tạo / Phê Duyệt Tài Khoản Cư Dân";
-        document.getElementById('accRole').value = "Cư dân";
+        document.getElementById('accRole').value = "DAN_CU";
         document.getElementById('accPermDesc').value = "Chỉ xem cá nhân/hộ mình, nhận thông báo, nhận kết quả phản ánh.";
       }
       document.getElementById('modalTaoTaiKhoan').style.display = 'flex';
@@ -869,29 +1119,58 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxWMJw1YfN-LHSbRoYbb4hh
     function dongModalTaoTaiKhoan() { document.getElementById('modalTaoTaiKhoan').style.display = 'none'; }
     function thucHienKichHoatTaiKhoan() {
       const name = document.getElementById('accName').value.trim();
-      if (!name) return alert("Vui lòng nhập họ tên!");
-      alert(`Đã kích hoạt và phân quyền tài khoản cho [${name}] thành công!`);
-      dongModalTaoTaiKhoan();
+      const id = document.getElementById('accId').value.trim();
+      const pass = document.getElementById('accPass').value.trim();
+      const role = document.getElementById('accRole').value;
+      const kp = document.getElementById('accKP').value;
+
+      if (!name || !id || !pass) return alert("Vui lòng điền đủ họ tên, tài khoản và mật khẩu!");
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "TAO_TAI_KHOAN",
+          hoTen: name, id: id, pass: pass, vaiTro: role, kpName: kp
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert(`Đã cấp và kích hoạt tài khoản [${id}] thành công!`);
+        dongModalTaoTaiKhoan();
+        taiDuLieuTuServer();
+      });
     }
 
-    function pheDuyetHoSo(btn, name) {
-      if(confirm(`Xác nhận phê duyệt tài khoản và nhân khẩu cho: ${name}?`)) {
-        btn.closest('tr').style.opacity = '0.35';
-        btn.parentElement.innerHTML = `<span style="color:var(--admin-emerald); font-weight:800;">✓ Đã Duyệt</span>`;
-        alert(`Đã phê duyệt thành công! Thông báo xác nhận thành viên đã được gửi đi.`);
-      }
+    // EXCEL EXPORT
+    function taiFileMauExcel() {
+      const csv = "HoTen,NgaySinh,GioiTinh,CCCD,SDT,QuanHe,KhuPho,NgheNghiep,NoiLamViec,TrinhDo,ChuyenMon,DiaChiThuongTru,DiaChiTamTru,GhiChu\nNguyen Van A,20/05/1980,Nam,079080309999,0123456786,Chu ho,Khu Pho 1,Ky su,Cty 1,Dai hoc,Xay dung,123 Le Lai,Khong,Chap hanh tot";
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Mau_Nhap_Lieu_Dan_Cu_PhuocThang.csv";
+      link.click();
     }
-    function tuChoiHoSo(btn) {
-      const reason = prompt("Nhập lý do từ chối:", "Sai lệch thông tin CCCD hoặc địa chỉ");
-      if(reason) { btn.closest('tr').remove(); alert("Đã từ chối và phản hồi đến công dân."); }
+    function xuatFileExcelTheoLoc() {
+      if (SERVER_DATA.nhanKhau.length === 0) return alert("Chưa có dữ liệu để xuất!");
+      let csv = "HoTen,NgaySinh,GioiTinh,CCCD,SDT,QuanHe,KhuPho,NgheNghiep,DiaChi\n";
+      SERVER_DATA.nhanKhau.forEach(n => {
+        csv += `"${n.hoTen}","${n.ngaySinh}","${n.gioiTinh}","${n.cccd}","${n.sdt}","${n.quanHe}","${n.kpName}","${n.ngheNghiep || ''}","${n.thuongTru}"\n`;
+      });
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Danh_Sach_Dan_Cu_PhuocThang.csv";
+      link.click();
+    }
+    function moModalImport() {
+      alert("Tính năng Import CSV hàng loạt: Bạn có thể nhập trực tiếp dữ liệu chuẩn vào Sheet 'NhanKhau' trên Google Sheets để hệ thống tự động đồng bộ ngay lập tức!");
     }
 
-    // DUMMY EXCEL
-    function taiFileMauExcel() { alert("Đang tải file mẫu Mau_Nhap_Lieu_Dan_Cu_PhuocThang.csv..."); }
-    function xuatFileExcelTheoLoc() { alert("Đã xuất file thông tin dữ liệu Excel thành công!"); }
-    function moModalImport() { alert("Mở trình nạp file Excel dân cư chuẩn..."); }
-
-    window.onload = function() { render16KhuPhoProgress(); };
+    // TỰ ĐỘNG CHẠY KHI MỞ TRANG WEB
+    window.onload = function() {
+      render16KhuPhoProgress();
+      taiDuLieuTuServer();
+    };
   </script>
 </body>
 </html>
